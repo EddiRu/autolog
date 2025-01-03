@@ -27,4 +27,8 @@ export class MenuComponent  implements OnInit {
     return this.router.navigateByUrl('/autos', {replaceUrl: true});
   }
 
+  rToPageArticulos(){
+    return this.router.navigateByUrl('/articulos', {replaceUrl: true});
+  }
+
 }
