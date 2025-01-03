@@ -268,7 +268,7 @@ export class HomePage implements OnInit {
   async agregarEvento() {
     const modalAddEvento = await this.modalController.create({
       component: AgregarEventoComponent,
-      cssClass: 'my-custom-class'
+      cssClass: 'my-custom-class-agregar-evento'
     });
 
     modalAddEvento.present();

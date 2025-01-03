@@ -93,4 +93,39 @@ export class FirebaseService {
       desc: reporte.desc
     });
   }
+
+
+  /*
+
+  A D M I N I S T R A C I Ó N     D E     A R T Í C U L O S
+
+  */
+
+  getArticulos(): Observable<any[]> {
+    const registroRef = collection(this.firestore, 'articulos');
+    return collectionData(registroRef, {idField: 'id'}) as Observable<any[]>;
+  }
+
+  getArticuloById(id: string): Observable<any> {
+    const registroRef = doc(this.firestore, `articulos/${id}`);
+    return docData(registroRef) as Observable<any>;
+  }
+
+  addArticulo(reporte: any): Promise<any> {
+    return addDoc(collection(this.firestore, 'articulos'), reporte);
+  }
+
+  deleteArticulo(id:string){
+    const registroRef = doc(this.firestore, `articulos/${id}`);
+    return deleteDoc(registroRef);
+  }
+
+  updateArticulo(reporte: any): Promise<any> {
+    const registroRef = doc(this.firestore, `articulos/${reporte.id}`);
+    return updateDoc(registroRef, {
+      articulo: reporte.articulo,
+      costo: reporte.costo,
+      desc: reporte.desc,
+    });
+  }
 }
