@@ -6,9 +6,19 @@
   </ion-header>
   <ion-content style="--background: #FFF;">
     <ion-list>
+      <ion-item>
+        <ion-label>
+          <b>INICIO</b>
+        </ion-label>
+      </ion-item>
       <ion-item button (click)="rToPanelControl()">
         <ion-icon name="pie-chart-outline" slot="start"></ion-icon>
         <ion-label>Panel de control</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>
+          <b>ADMINISTRACIÓN</b>
+        </ion-label>
       </ion-item>
       <ion-item button (click)="rToAutosPage()">
         <ion-icon name="car-outline" slot="start"></ion-icon>
@@ -17,6 +27,19 @@
       <ion-item button (click)="rToPageArticulos()">
         <ion-icon name="cart-outline" slot="start"></ion-icon>
         <ion-label>Articulos</ion-label>
+      </ion-item>
+      <ion-item>
+        <ion-label>
+          <b>USUARIOS</b>
+        </ion-label>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="person-add-outline" slot="start"></ion-icon>
+        <ion-label>Cuentas</ion-label>
+      </ion-item>
+      <ion-item button>
+        <ion-icon name="person-outline" slot="start"></ion-icon>
+        <ion-label>Mi cuenta</ion-label>
       </ion-item>
     </ion-list>
   </ion-content>
