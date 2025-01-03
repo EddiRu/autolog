@@ -1,0 +1,41 @@
+<ion-menu side="start" content-id="main-content" type="overlay">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Menú</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content style="--background: #FFF;">
+    <ion-list>
+      <ion-item button (click)="rToPanelControl()">
+        <ion-icon name="pie-chart-outline" slot="start"></ion-icon>
+        <ion-label>Panel de control</ion-label>
+      </ion-item>
+      <ion-item button (click)="rToAutosPage()">
+        <ion-icon name="car-outline" slot="start"></ion-icon>
+        <ion-label>Autos</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<ion-header [translucent]="true" *ngIf="titulo == 'pc'">
+  <ion-toolbar style="--background-color: #FCFCFD;">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title style="text-align: center; color: #475569; letter-spacing: 5px;">
+      <b>P A N E L</b>&nbsp;&nbsp;&nbsp;D E&nbsp;&nbsp;&nbsp;C O N T R O L
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-header [translucent]="true" *ngIf="titulo == 'auto'">
+  <ion-toolbar style="--background-color: #FCFCFD;">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title style="text-align: center; color: #475569; letter-spacing: 5px;">
+      <b>A D M I N I S T R A C I Ó N</b>&nbsp;&nbsp;&nbsp;D E&nbsp;&nbsp;&nbsp;A U T O S
+    </ion-title>
+  </ion-toolbar>
+</ion-header>

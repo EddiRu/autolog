@@ -25,6 +25,49 @@
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('./assets/font/Comfortaa-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Comfortaa';
+  src: url('./assets/font/Comfortaa-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+
+.my-custom-class-add-auto{
+  --border-radius: 15px;
+}
+
+.my-custom-class{
+  --border-radius: 15px;
+}
+
+
+body,
+ion-content {
+  --background: #EEF3FA;
+  /* Color de fondo */
+  background-image: url('assets/dots.png');
+  font-family: 'Comfortaa', sans-serif;
+  /* Ruta de la imagen */
+  background-repeat: repeat;
+}
+
+@media (min-width: 768px) {
+  .my-custom-class-details{
+    --border-radius: 15px;
+    --width: 90%;
+  }
+}
+
+
+
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
@@ -34,4 +77,4 @@
 
 /* @import "@ionic/angular/css/palettes/dark.always.css"; */
 /* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import "@ionic/angular/css/palettes/dark.system.css";
+/* @import "@ionic/angular/css/palettes/dark.system.css"; */

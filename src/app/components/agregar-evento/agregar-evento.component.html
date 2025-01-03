@@ -1,0 +1,55 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title style="text-align: center;">
+      Agrega un nuevo servicio
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <form (ngSubmit)="agregarEvento()" [formGroup]="eventoNuevo" style="margin: 5%;">
+
+    <ion-select label="Selecciona una unidad" label-placement="floating" fill="outline" style="--background: #ffffff;"
+      formControlName="unidad">
+      <ion-select-option *ngFor="let item of autos" value="{{item.id}}">{{item.unidad}}</ion-select-option>
+    </ion-select>
+    <br>
+    <ion-input label="Kilometraje de la unidad" type="number" label-placement="floating" fill="outline" placeholder="kilometraje"
+      style="--background: #ffffff;" formControlName="kilometraje">
+    </ion-input>
+
+    <br>
+    <ion-textarea label="Servicio realizado a la unidad" labelPlacement="floating" fill="outline" placeholder="Servicio"
+      [autoGrow]="true" rows="5" style="--background: #ffffff;" formControlName="servicio">
+    </ion-textarea>
+
+    <br>
+    <ion-input label="Artículos agregados a la unidad" label-placement="floating" fill="outline" placeholder="Artículos"
+      style="--background: #ffffff;" formControlName="articulo">
+    </ion-input>
+
+    <br>
+    <ion-input label="Costo del servicio" type="number" label-placement="floating" fill="outline" placeholder="Costo $$"
+      style="--background: #ffffff;" formControlName="costo">
+    </ion-input>
+
+    <br>
+    <h5 style="text-align: center;">Selecciona el día en que se realizó el servicio</h5>
+    <ion-datetime-button datetime="dateTimeServicio" color="light"></ion-datetime-button>
+
+    <ion-modal [keepContentsMounted]="true">
+      <ng-template>
+        <ion-datetime id="dateTimeServicio" presentation="date" formControlName="fecha"></ion-datetime>
+      </ng-template>
+    </ion-modal>
+
+    <ion-button type="submit" expand="block" fill="clear" shape="round" color="success">
+      Agregar servicio
+    </ion-button>
+  </form>
+</ion-content>
