@@ -32,7 +32,8 @@ export class AgregarAutoComponent  implements OnInit {
     this.autoNuevo = this.fb.group({
       unidad: ['', Validators.required],
       operador: ['', Validators.required],
-      desc: ['', Validators.required]
+      desc: ['', Validators.required],
+      kilometraje: ['', Validators.required]
     });
   }
 

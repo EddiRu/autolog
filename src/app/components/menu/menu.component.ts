@@ -31,4 +31,12 @@ export class MenuComponent  implements OnInit {
     return this.router.navigateByUrl('/articulos', {replaceUrl: true});
   }
 
+  rToAdmUsuarios(){
+    return this.router.navigateByUrl('/usuarios', {replaceUrl: true});
+  }
+
+  rToMiPerfil(){
+    return this.router.navigateByUrl('/mi-perfil', {replaceUrl: true});
+  }
+
 }

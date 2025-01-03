@@ -89,6 +89,7 @@ export class FirebaseService {
     return updateDoc(registroRef, {
       unidad: reporte.unidad,
       operador: reporte.operador,
+      kilometraje: reporte.kilometraje,
       desc: reporte.desc
     });
   }

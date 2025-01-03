@@ -29,6 +29,7 @@ export class EditarAutoComponent implements OnInit {
     this.editarAuto = this.fb.group({
       id: [this.auto.id, Validators.required],
       unidad: [this.auto.unidad, Validators.required],
+      kilometraje: [this.auto.kilometraje, Validators.required],
       operador: [this.auto.operador, Validators.required],
       desc: [this.auto.desc, Validators.required]
     });

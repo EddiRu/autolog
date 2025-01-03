@@ -19,6 +19,14 @@ const routes: Routes = [
     path: 'articulos',
     loadChildren: () => import('./articulos/articulos.module').then( m => m.ArticulosPageModule)
   },
+  {
+    path: 'usuarios',
+    loadChildren: () => import('./usuarios/usuarios.module').then( m => m.UsuariosPageModule)
+  },
+  {
+    path: 'mi-perfil',
+    loadChildren: () => import('./mi-perfil/mi-perfil.module').then( m => m.MiPerfilPageModule)
+  },
 ];
 
 @NgModule({

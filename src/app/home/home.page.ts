@@ -212,7 +212,7 @@ export class HomePage implements OnInit {
       // Filtra los registros por el término de búsqueda
       this.registros = this.registrosOriginales.filter((item) => {
         return (
-          (item.unidad && item.unidad.toString().toLowerCase().includes(query)) || // Verifica si unidad es una cadena o convertible
+          (item.unidad && item.unidad.unidad.toString().toLowerCase().includes(query)) || // Verifica si unidad es una cadena o convertible
           (item.servicio && item.servicio.toString().toLowerCase().includes(query)) || // Verifica si servicio es una cadena
           (item.articulo && item.articulo.toString().toLowerCase().includes(query)) || // Verifica si artículo es una cadena
           (item.fecha && item.fecha.toString().toLowerCase().includes(query)) // Verifica si fecha es una cadena

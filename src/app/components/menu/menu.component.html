@@ -33,11 +33,11 @@
           <b>USUARIOS</b>
         </ion-label>
       </ion-item>
-      <ion-item button>
+      <ion-item button (click)="rToAdmUsuarios()">
         <ion-icon name="person-add-outline" slot="start"></ion-icon>
         <ion-label>Cuentas</ion-label>
       </ion-item>
-      <ion-item button>
+      <ion-item button (click)="rToMiPerfil()">
         <ion-icon name="person-outline" slot="start"></ion-icon>
         <ion-label>Mi cuenta</ion-label>
       </ion-item>
@@ -74,6 +74,28 @@
     </ion-buttons>
     <ion-title style="text-align: center; color: #475569; letter-spacing: 5px;">
       <b>A D M I N I S T R A C I Ó N</b>&nbsp;&nbsp;&nbsp;D E&nbsp;&nbsp;&nbsp;A R T I C U L O S
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-header [translucent]="true" *ngIf="titulo == 'admUser'">
+  <ion-toolbar style="--background-color: #FCFCFD;">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title style="text-align: center; color: #475569; letter-spacing: 5px;">
+      <b>A D M I N I S T R A C I Ó N</b>&nbsp;&nbsp;&nbsp;D E&nbsp;&nbsp;&nbsp;U S U U A R I O S
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-header [translucent]="true" *ngIf="titulo == 'yo'">
+  <ion-toolbar style="--background-color: #FCFCFD;">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title style="text-align: center; color: #475569; letter-spacing: 5px;">
+      <b>M I</b>&nbsp;&nbsp;&nbsp;P E R F I L
     </ion-title>
   </ion-toolbar>
 </ion-header>
