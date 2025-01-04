@@ -9,7 +9,7 @@
   <h5 style="text-align: center;">Busqueda por unidad</h5>
   <div style="width: 100%;">
     <ion-searchbar style="--border-radius: 8px; transform: scale(1.21);  width: 83%; margin: 0 auto;"
-      placeholder="Buscar algun articulo" [debounce]="250" showCancelButton="focus"
+      placeholder="Buscar algun articulo" [debounce]="25" showCancelButton="focus" (ionInput)="buscarArticulo($event)"
       ></ion-searchbar>
   </div>
 
@@ -28,7 +28,7 @@
           <tbody>
             <tr *ngFor="let registro of registrosPaginados">
               <td>{{ registro.articulo }}</td>
-              <td>{{ registro.precio }}</td>
+              <td>${{ registro.precio }}</td>
               <td>{{ registro.desc }}</td>
               <td>
                 <ion-row class="ion-justify-content-center ion-align-items-center">

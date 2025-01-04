@@ -33,6 +33,7 @@ export class AgregarEventoComponent implements OnInit {
       servicio: ['', Validators.required],
       articulo: ['', Validators.required],
       costo: ['', Validators.required],
+      autUser: ['', Validators.required],
       fecha: [new Date().toISOString().split('T')[0]]
     })
   }
