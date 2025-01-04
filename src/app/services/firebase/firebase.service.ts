@@ -124,7 +124,7 @@ export class FirebaseService {
     const registroRef = doc(this.firestore, `articulos/${reporte.id}`);
     return updateDoc(registroRef, {
       articulo: reporte.articulo,
-      costo: reporte.costo,
+      precio: reporte.precio,
       desc: reporte.desc,
     });
   }
