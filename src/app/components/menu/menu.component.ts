@@ -2,6 +2,8 @@ import { CommonModule } from '@angular/common';
 import { Component, Input, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
+import { AuthService } from 'src/app/services/auth/auth.service';
+import { StorageService } from 'src/app/services/storage/storage.service';
 
 @Component({
   selector: 'app-menu',
@@ -14,7 +16,9 @@ export class MenuComponent  implements OnInit {
   @Input() titulo:any;
 
   constructor(
-    private router: Router
+    private router: Router,
+    private authService: AuthService,
+    private storageService: StorageService
   ) { }
 
   ngOnInit() {}
@@ -37,6 +41,12 @@ export class MenuComponent  implements OnInit {
 
   rToMiPerfil(){
     return this.router.navigateByUrl('/mi-perfil', {replaceUrl: true});
+  }
+
+  logout(){
+    this.authService.logout();
+    this.storageService.clear();
+    this.router.navigateByUrl('/login', {replaceUrl: true});
   }
 
 }

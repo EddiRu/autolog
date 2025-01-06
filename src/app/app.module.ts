@@ -15,12 +15,14 @@ import { getFirestore, provideFirestore } from '@angular/fire/firestore';
 import { getStorage, provideStorage } from '@angular/fire/storage';
 
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { IonicStorageModule } from '@ionic/storage-angular';
+
 import { NgApexchartsModule } from "ng-apexcharts";
 
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, NgApexchartsModule],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, NgApexchartsModule, IonicStorageModule.forRoot()],
   providers: [{ provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, 
     provideFirebaseApp(() => initializeApp(environment.firebaseConfig)), 
     provideAuth(() => getAuth()), 

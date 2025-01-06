@@ -27,48 +27,68 @@ export class FirebaseService {
   ) { }
 
   /*
+    A D M I N I S T R A C I Ó N      D  E    U S U A R I O S
+  */
+  getUsuarios(): Observable<any[]> {
+    const registroRef = collection(this.firestore, 'usuarios');
+    return collectionData(registroRef, { idField: 'id' }) as Observable<any[]>;
+  }
+
+  // Eliminar un usuario
+  deleteUsuario(id: string) {
+    const usuarioRef = doc(this.firestore, `usuarios/${id}`);
+    return deleteDoc(usuarioRef);
+  }
+
+  // Actualizar un usuario
+  updateUsuario(data: any) {
+    const usuarioRef = doc(this.firestore, `usuarios/${data.id}`);
+    return updateDoc(usuarioRef, data);
+  }
+
+  /*
       A D M I N I S T R A C I Ó N    D E     E V E N T O S
   */
-      getEvento(): Observable<any[]> {
-        const registroRef = collection(this.firestore, 'eventos');
-        return collectionData(registroRef, {idField: 'id'}) as Observable<any[]>;
-      }
-    
-      getEventoById(id: string): Observable<any> {
-        const registroRef = doc(this.firestore, `eventos/${id}`);
-        return docData(registroRef) as Observable<any>;
-      }
-    
-      addEvento(reporte: any): Promise<any> {
-        return addDoc(collection(this.firestore, 'eventos'), reporte);
-      }
-    
-      deleteEvento(id:string){
-        const registroRef = doc(this.firestore, `eventos/${id}`);
-        return deleteDoc(registroRef);
-      }
-    
-      updateEvento(reporte: any): Promise<any> {
-        const registroRef = doc(this.firestore, `eventos/${reporte.id}`);
-        return updateDoc(registroRef, {
-            unidad: reporte.unidad,
-            kilometraje: reporte.kilometraje,
-            servicio: reporte.servicio,
-            articulos: reporte.articulos, // Campo actualizado para incluir el array de artículos
-            costo: reporte.costo,
-            fecha: reporte.fecha,
-            autUser: reporte.autUser // Usuario que autorizó la operación
-        });
-    }
+  getEvento(): Observable<any[]> {
+    const registroRef = collection(this.firestore, 'eventos');
+    return collectionData(registroRef, { idField: 'id' }) as Observable<any[]>;
+  }
+
+  getEventoById(id: string): Observable<any> {
+    const registroRef = doc(this.firestore, `eventos/${id}`);
+    return docData(registroRef) as Observable<any>;
+  }
+
+  addEvento(reporte: any): Promise<any> {
+    return addDoc(collection(this.firestore, 'eventos'), reporte);
+  }
+
+  deleteEvento(id: string) {
+    const registroRef = doc(this.firestore, `eventos/${id}`);
+    return deleteDoc(registroRef);
+  }
+
+  updateEvento(reporte: any): Promise<any> {
+    const registroRef = doc(this.firestore, `eventos/${reporte.id}`);
+    return updateDoc(registroRef, {
+      unidad: reporte.unidad,
+      kilometraje: reporte.kilometraje,
+      servicio: reporte.servicio,
+      articulos: reporte.articulos, // Campo actualizado para incluir el array de artículos
+      costo: reporte.costo,
+      fecha: reporte.fecha,
+      autUser: reporte.autUser // Usuario que autorizó la operación
+    });
+  }
 
 
   /*
       A D M I N I S T R A C I O N       D E     A U T O S
   */
-  
+
   getAutos(): Observable<any[]> {
     const registroRef = collection(this.firestore, 'autos');
-    return collectionData(registroRef, {idField: 'id'}) as Observable<any[]>;
+    return collectionData(registroRef, { idField: 'id' }) as Observable<any[]>;
   }
 
   getAutoById(id: string): Observable<any> {
@@ -80,7 +100,7 @@ export class FirebaseService {
     return addDoc(collection(this.firestore, 'autos'), reporte);
   }
 
-  deleteAuto(id:string){
+  deleteAuto(id: string) {
     const registroRef = doc(this.firestore, `autos/${id}`);
     return deleteDoc(registroRef);
   }
@@ -104,7 +124,7 @@ export class FirebaseService {
 
   getArticulos(): Observable<any[]> {
     const registroRef = collection(this.firestore, 'articulos');
-    return collectionData(registroRef, {idField: 'id'}) as Observable<any[]>;
+    return collectionData(registroRef, { idField: 'id' }) as Observable<any[]>;
   }
 
   getArticuloById(id: string): Observable<any> {
@@ -116,7 +136,7 @@ export class FirebaseService {
     return addDoc(collection(this.firestore, 'articulos'), reporte);
   }
 
-  deleteArticulo(id:string){
+  deleteArticulo(id: string) {
     const registroRef = doc(this.firestore, `articulos/${id}`);
     return deleteDoc(registroRef);
   }
