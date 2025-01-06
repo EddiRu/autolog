@@ -33,7 +33,9 @@ export class AgregarAutoComponent  implements OnInit {
       unidad: ['', Validators.required],
       operador: ['', Validators.required],
       desc: ['', Validators.required],
-      kilometraje: ['', Validators.required]
+      kilometraje: ['', Validators.required],
+      km_actual: ['', Validators.required],
+      km_proximo_servicio: ['', Validators.required]
     });
   }
 
@@ -60,6 +62,14 @@ export class AgregarAutoComponent  implements OnInit {
     });
 
     await toast.present();
+  }
+
+  establecerKilometraje(){
+    const actual:any = this.autoNuevo.get('kilometraje').value;
+    const prox_Servicio = parseInt(actual) + 10000;
+
+    this.autoNuevo.get('km_actual').setValue(parseInt(actual));
+    this.autoNuevo.get('km_proximo_servicio').setValue(prox_Servicio);
   }
 
   async agregarAuto(){

@@ -127,6 +127,8 @@ export class FirebaseService {
       unidad: reporte.unidad,
       operador: reporte.operador,
       kilometraje: reporte.kilometraje,
+      km_actual: reporte.km_actual,
+      km_proximo_servicio: reporte.km_proximo_servicio,
       desc: reporte.desc
     });
   }

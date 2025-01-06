@@ -21,7 +21,9 @@
             <tr>
               <th>Unidad</th>
               <th>Operador</th>
-              <th>Kilometraje</th>
+              <th style="text-align: center;">KM <br> Inicial</th>
+              <th style="text-align: center;">KM <br> Actual</th>
+              <th style="text-align: center;">KM <br> Prox. Servicio</th>
               <th>Descripción</th>
               <th style="text-align: center;">Eliminar/Editar</th>
             </tr>
@@ -30,7 +32,9 @@
             <tr *ngFor="let registro of registrosPaginados">
               <td>{{ registro.unidad }}</td>
               <td>{{ registro.operador }}</td>
-              <td>{{ registro.kilometraje }}km</td>
+              <td style="text-align: center;">{{ registro.kilometraje }} km</td>
+              <td style="text-align: center;">{{ registro.km_actual }} km</td>
+              <td style="text-align: center;">{{ registro.km_proximo_servicio}} km</td>
               <td>{{ registro.desc }}</td>
               <td>
                 <ion-row class="ion-justify-content-center ion-align-items-center">
@@ -54,9 +58,6 @@
     <span>Página {{ paginaActual }} de {{ getTotalPaginas() }}</span>
     <ion-button (click)="paginaSiguiente()" [disabled]="paginaActual === getTotalPaginas()">Siguiente</ion-button>
   </div>
-
-
-
   <ion-fab horizontal="end" vertical="bottom" slot="fixed" (click)="addAuto()">
     <ion-fab-button>
       <ion-icon name="add-outline"></ion-icon>

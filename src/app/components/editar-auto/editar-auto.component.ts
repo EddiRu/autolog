@@ -30,10 +30,35 @@ export class EditarAutoComponent implements OnInit {
       id: [this.auto.id, Validators.required],
       unidad: [this.auto.unidad, Validators.required],
       kilometraje: [this.auto.kilometraje, Validators.required],
+      km_actual: [this.auto.km_actual, Validators.required],
+      km_proximo_servicio: [this.auto.km_proximo_servicio, Validators.required],
       operador: [this.auto.operador, Validators.required],
       desc: [this.auto.desc, Validators.required]
     });
+    this.mitigarCamposFaltantes();
   }
+
+  async mitigarCamposFaltantes() {
+    const km = this.editarAuto.get('kilometraje')?.value || 0;
+    const km_actual = this.editarAuto.get('km_actual')?.value || 0;
+    const km_proximo_servicio = this.editarAuto.get('km_proximo_servicio')?.value || 0;
+  
+    // Si no hay kilometraje inicial, asigna el actual como inicial
+    if (km === 0 && km_actual > 0) {
+      this.editarAuto.get('kilometraje')?.setValue(km_actual);
+    }
+  
+    // Si no hay kilometraje actual, asigna el inicial como actual
+    if (km_actual === 0 && km > 0) {
+      this.editarAuto.get('km_actual')?.setValue(km);
+    }
+  
+    // Si no hay próximo servicio, calcula a partir del actual
+    if (km_proximo_servicio === 0 && km_actual > 0) {
+      this.editarAuto.get('km_proximo_servicio')?.setValue(km_actual + 10000);
+    }
+  }
+  
 
   async cancel(){
     this.editarAuto.reset();
@@ -58,6 +83,31 @@ export class EditarAutoComponent implements OnInit {
     });
 
     await toast.present();
+  }
+
+
+  establecerKilometraje(){
+    const actual:any = this.editarAuto.get('kilometraje').value;
+    const km_actual = this.editarAuto.get('km_actual').value;
+    const prox_Servicio = parseInt(actual) + 10000;
+
+    if(km_actual == 0 && prox_Servicio == 0){
+      this.editarAuto.get('km_actual').setValue(actual);
+      this.editarAuto.get('km_proximo_servicio').setValue(prox_Servicio);
+    }
+    
+  }
+
+  verificarCambioServicio() {
+    const km_ini = this.editarAuto.get('kilometraje')?.value || 0;
+    const km_actual = this.editarAuto.get('km_actual')?.value || 0;
+    const km_proximo_servicio = this.editarAuto.get('km_proximo_servicio')?.value || 0;
+  
+    // Si no hay kilometraje inicial pero hay un actual, actualiza ambos campos
+    if (km_ini === 0 && km_actual > 0 && km_proximo_servicio === 0) {
+      this.editarAuto.get('kilometraje')?.setValue(km_actual);
+      this.editarAuto.get('km_proximo_servicio')?.setValue(km_actual + 10000);
+    }
   }
 
   async editarAutoFirebase(){
