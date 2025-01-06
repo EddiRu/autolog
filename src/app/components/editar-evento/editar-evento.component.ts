@@ -126,7 +126,16 @@ export class EditarEventoComponent implements OnInit {
         };
   
         // Guardamos el evento actualizado en Firebase
-        await this.firebaseService.updateEvento(updatedEvento);
+        await this.firebaseService.updateEvento(updatedEvento).then((res:any) => {
+          unidadSeleccionada.km_actual = this.editarEventoRegistro.get('kilometraje').value;
+          const unidadActulizacion = this.verificarDatosIniciales(unidadSeleccionada)
+
+          this.firebaseService.updateAuto(unidadActulizacion).then(() => {
+            console.log('Unidad actualizada correctamente');
+          }).catch((error) => {
+            console.error('Error updating document:', error);
+          });
+        })
   
         this.presentToast('Evento editado correctamente', 'bottom', 'success');
         this.cancel();
@@ -151,5 +160,30 @@ export class EditarEventoComponent implements OnInit {
       color
     });
     toast.present();
+  }
+
+  verificarDatosIniciales(unidadSeleccionada: any) {
+    const km_actual = unidadSeleccionada.km_actual || 0;
+    const kilometraje = unidadSeleccionada.kilometraje || 0;
+    const km_proximo_servicio = unidadSeleccionada.km_proximo_servicio || 0;
+  
+    if (kilometraje === 0 && km_actual > 0) {
+      unidadSeleccionada.kilometraje = km_actual;
+    }
+  
+    if (km_proximo_servicio === 0 && km_actual > 0) {
+      unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
+    }
+  
+    if (km_actual === 0 && kilometraje > 0) {
+      unidadSeleccionada.km_actual = kilometraje;
+    }
+
+    // Nuevo: actualizar el próximo servicio automáticamente si es superado
+    if (km_actual >= km_proximo_servicio) {
+      unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
+  }
+  
+    return unidadSeleccionada;
   }
 }

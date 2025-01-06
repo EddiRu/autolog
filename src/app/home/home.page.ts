@@ -32,7 +32,17 @@ export type ChartOptions = {
 })
 export class HomePage implements OnInit {
 
-  public userRole:string = ''
+  public userRole: string = ''
+  public autos: any = [];
+  estadoSeleccionado: string = '';
+  busquedaUnidad: string = ''; // Texto de búsqueda ingresado
+
+
+  colorimetriaPaginada: any[] = []; // Datos visibles en la página actual de colorimetría
+  paginaColorimetriaActual: number = 1; // Página actual de colorimetría
+  colorimetriaPorPagina: number = 10; // Registros por página en colorimetría
+  unidadesFiltradas: any[] = []; // Lista filtrada de unidades para búsqueda
+
 
   public chartPieTopCost: Partial<ChartOptions> = { series: [], labels: [] };
   public chartPieTopServices: Partial<ChartOptions> = { series: [], labels: [] };
@@ -47,7 +57,6 @@ export class HomePage implements OnInit {
 
   fechaInicio: string | null = null; // Fecha inicial seleccionada
   fechaFin: string | null = null;   // Fecha final seleccionada
-
 
 
 
@@ -93,10 +102,6 @@ export class HomePage implements OnInit {
     this.generarGraficosConDatos(this.registros); // Actualizar gráficos con registros filtrados
   }
 
-
-
-
-
   async showLoading(msg: string) {
     const loading = await this.loadcontroller.create({
       message: msg,
@@ -126,12 +131,20 @@ export class HomePage implements OnInit {
   async getEventos() {
     this.firebaseSerive.getEvento().subscribe({
       next: (data) => {
-        this.storageService.get('currentUser').then((user:any) => {
+        this.storageService.get('currentUser').then((user: any) => {
           this.userRole = user.rol;
         })
         const registrosOrdenados = data.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
         this.registros = registrosOrdenados;
         this.registrosOriginales = [...registrosOrdenados];
+        this.firebaseSerive.getAutos().subscribe({
+          next: (value) => {
+            this.autos = value;
+            this.unidadesFiltradas = [...this.autos];
+            this.actualizarColorimetriaPaginada();
+          },
+        })
+
         this.actualizarTabla();
         this.generarGraficos(); // Generar gráficos después de cargar y ordenar datos
       },
@@ -139,6 +152,62 @@ export class HomePage implements OnInit {
         console.error('Error al obtener eventos:', error);
       },
     });
+  }
+
+  // Agregar esta función para calcular el color basado en el estado de la unidad
+  calcularColor(auto: any): string {
+    const km_actual = auto.km_actual || 0;
+    const km_proximo_servicio = auto.km_proximo_servicio || 0;
+
+    if (km_actual >= km_proximo_servicio) {
+      return 'rojo';
+    } else if (km_actual >= km_proximo_servicio - 3000) {
+      return 'amarillo';
+    } else {
+      return 'verde';
+    }
+  }
+
+  // Agregar esta función para mostrar el estado en palabras
+  calcularEstado(unidad: any): string {
+    const kmActual = unidad.km_actual || 0;
+    const kmProximoServicio = unidad.km_proximo_servicio || 0;
+
+    if (kmActual >= kmProximoServicio) {
+      return 'Servicio vencido';
+    } else if (kmProximoServicio - kmActual <= 2000) {
+      return 'Próximo a servicio';
+    } else {
+      return 'En buen estado';
+    }
+  }
+
+  // Actualiza los registros visibles en la sección de colorimetría
+  actualizarColorimetriaPaginada() {
+    const inicio = (this.paginaColorimetriaActual - 1) * this.colorimetriaPorPagina;
+    const fin = inicio + this.colorimetriaPorPagina;
+    this.colorimetriaPaginada = this.unidadesFiltradas.slice(inicio, fin);
+  }
+
+  // Calcula el total de páginas para la colorimetría
+  getTotalPaginasColorimetria(): number {
+    return Math.ceil(this.autos.length / this.colorimetriaPorPagina);
+  }
+
+  // Cambia a la página anterior en la colorimetría
+  paginaColorimetriaAnterior() {
+    if (this.paginaColorimetriaActual > 1) {
+      this.paginaColorimetriaActual--;
+      this.actualizarColorimetriaPaginada();
+    }
+  }
+
+  // Cambia a la página siguiente en la colorimetría
+  paginaColorimetriaSiguiente() {
+    if (this.paginaColorimetriaActual < this.getTotalPaginasColorimetria()) {
+      this.paginaColorimetriaActual++;
+      this.actualizarColorimetriaPaginada();
+    }
   }
 
   generarGraficos() {
@@ -167,17 +236,17 @@ export class HomePage implements OnInit {
       acc[placa] = (acc[placa] || 0) + 1; // Incrementamos el contador de servicios para esa unidad
       return acc;
     }, {});
-    
+
     const topServicios = Object.entries(serviciosPorUnidad)
       .sort((a: any, b: any) => b[1] - a[1]) // Ordenamos por cantidad de servicios en orden descendente
       .slice(0, 10); // Tomamos las 10 unidades con más servicios
-    
+
     this.chartPieTopServices = {
       series: topServicios.map((item: any) => item[1]), // Cantidad de servicios como series
       chart: { type: "pie", height: 300 }, // Configuración del gráfico
       labels: topServicios.map((item: any) => item[0]), // Etiquetas con las placas de las unidades
     };
-    
+
 
     const currentYear = new Date().getFullYear(); // Obtiene el año actual
 
@@ -333,51 +402,51 @@ export class HomePage implements OnInit {
   // Exportar todos los eventos a la vez
   async exportarTodosLosEventos() {
     if (this.registrosOriginales.length > 0) {
-        const registrosTransformados = this.registrosOriginales.map((registro) => {
-            const { id, articulos, ...resto } = registro;
+      const registrosTransformados = this.registrosOriginales.map((registro) => {
+        const { id, articulos, ...resto } = registro;
 
-            // Transformar los artículos en una cadena delimitada por comas
-            const articulosString = Array.isArray(articulos)
-                ? articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
-                : 'Sin artículos';
+        // Transformar los artículos en una cadena delimitada por comas
+        const articulosString = Array.isArray(articulos)
+          ? articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
+          : 'Sin artículos';
 
-            return {
-                ...resto,
-                unidad: registro.unidad.unidad, // Reemplaza `unidad` con la placa
-                artículos: articulosString, // Agregamos la cadena de artículos como un nuevo campo
-            };
-        });
+        return {
+          ...resto,
+          unidad: registro.unidad.unidad, // Reemplaza `unidad` con la placa
+          artículos: articulosString, // Agregamos la cadena de artículos como un nuevo campo
+        };
+      });
 
-        const fechaAcutal = new Date().toISOString().split('T')[0];
+      const fechaAcutal = new Date().toISOString().split('T')[0];
 
-        this.excelService.exportToExcel(registrosTransformados, 'reporte_general_' + fechaAcutal);
+      this.excelService.exportToExcel(registrosTransformados, 'reporte_general_' + fechaAcutal);
     } else {
-        this.presentToast('No hay datos para exportar', 'bottom', 'warning');
+      this.presentToast('No hay datos para exportar', 'bottom', 'warning');
     }
-}
+  }
   async exportarHisotiralEspesifico(item: any) {
     // Transformar los artículos en una cadena delimitada por comas
     const articulosString = Array.isArray(item.articulos)
-        ? item.articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
-        : item.articulo || 'Sin artículos'; // Fallback para eventos antiguos
+      ? item.articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
+      : item.articulo || 'Sin artículos'; // Fallback para eventos antiguos
 
     const auxItem: any = [{
-        fecha: item.fecha,
-        unidad: item.unidad.unidad,
-        servicio: item.servicio,
-        artículos: articulosString,
-        costo: item.costo,
+      fecha: item.fecha,
+      unidad: item.unidad.unidad,
+      servicio: item.servicio,
+      artículos: articulosString,
+      costo: item.costo,
     }];
 
     this.excelService.exportToExcel(auxItem, 'reporte_' + item.unidad.unidad + '_' + item.fecha);
-}
+  }
 
 
   async detallesEventoRegistro(item: any) {
     const datos = this.registrosOriginales;
     const modalDetalesRegistro = await this.modalController.create({
       component: DetallesEventoUnidadComponent,
-      cssClass:'my-custom-class-details',
+      cssClass: 'my-custom-class-details',
       componentProps: {
         datos: datos,
         evento: item
@@ -386,4 +455,46 @@ export class HomePage implements OnInit {
 
     modalDetalesRegistro.present();
   }
+
+  buscarUnidad(event: any) {
+    this.busquedaUnidad = event.target.value?.toLowerCase() || ''; // Actualiza el término de búsqueda en minúsculas
+    this.aplicarFiltros(); // Delegamos el filtrado combinado a una función general
+  }
+
+
+  filtrarPorEstado(event: any) {
+    this.estadoSeleccionado = event.detail.value; // Captura el estado seleccionado
+    this.aplicarFiltros(); // Aplica los filtros combinados
+  }
+
+  aplicarFiltros() {
+    const query = this.busquedaUnidad; // Texto de búsqueda
+
+    console.log('Estado seleccionado:', this.estadoSeleccionado);
+
+    this.unidadesFiltradas = this.autos.filter((auto) => {
+      const coincideBusqueda =
+        query === '' || // Si no hay búsqueda, incluye todos
+        auto.unidad.toLowerCase().includes(query) || // Coincide con unidad
+        auto.operador?.toLowerCase().includes(query); // Coincide con operador
+
+      const color = this.calcularColor(auto); // Calcula el color del auto
+
+      const coincideEstado =
+        this.estadoSeleccionado === '' || // Si no hay estado seleccionado, incluye todos
+        color === this.estadoSeleccionado; // Coincide con el estado seleccionado
+
+      return coincideBusqueda && coincideEstado; // Devuelve solo los que cumplen ambos criterios
+    });
+
+    console.log('Resultados filtrados:', this.unidadesFiltradas);
+
+    // Reinicia la paginación al aplicar filtros
+    this.paginaColorimetriaActual = 1;
+    this.actualizarColorimetriaPaginada(); // Actualiza los resultados paginados
+  }
+
+
+
+
 }

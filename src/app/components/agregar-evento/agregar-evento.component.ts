@@ -98,6 +98,7 @@ export class AgregarEventoComponent implements OnInit {
     await toast.present();
   }
 
+
   filtrarArticulos(event: any) {
     const query = event.target.value.toLowerCase(); // Obtiene el valor ingresado en minúsculas
 
@@ -135,7 +136,8 @@ export class AgregarEventoComponent implements OnInit {
     this.calcularTotales(); // Recalcula los totales
   }
 
- 
+
+
 
   calcularTotales() {
     const articulos = this.articulosFormArray.value; // Obtiene los valores del FormArray
@@ -149,28 +151,36 @@ export class AgregarEventoComponent implements OnInit {
 
   async agregarEvento() {
     await this.showLoading('Agregando evento...');
-  
+
     if (this.eventoNuevo.valid) {
       try {
         const unidadSeleccionada = this.autos.find(
           (d: any) => d.id === this.eventoNuevo.get('unidad')?.value
         );
-  
         const unidad = {
           id: unidadSeleccionada.id,
           unidad: unidadSeleccionada.unidad
         };
-  
+
         // Obtenemos los artículos seleccionados desde el FormArray
         const articulos = this.articulosFormArray.value;
-  
+
         const eventoData = {
           ...this.eventoNuevo.value,
           unidad,
           articulos // Incluimos el array de artículos
         };
-  
-        await this.firebaseService.addEvento(eventoData);
+
+        await this.firebaseService.addEvento(eventoData).then((res) => {
+          unidadSeleccionada.km_actual = this.eventoNuevo.get('kilometraje').value;
+          const unidadActulizacion = this.verificarDatosIniciales(unidadSeleccionada)
+
+          this.firebaseService.updateAuto(unidadActulizacion).then(() => {
+            console.log('Unidad actualizada correctamente');
+          }).catch((error) => {
+            console.error('Error updating document:', error);
+          });
+        });
         this.presentToast('Evento agregado correctamente', 'bottom', 'success');
         this.cancel();
       } catch (error) {
@@ -181,5 +191,30 @@ export class AgregarEventoComponent implements OnInit {
       this.presentToast('Todos los campos son obligatorios', 'bottom', 'warning');
     }
   }
+
+  verificarDatosIniciales(unidadSeleccionada: any) {
+    const km_actual = unidadSeleccionada.km_actual || 0;
+    const kilometraje = unidadSeleccionada.kilometraje || 0;
+    const km_proximo_servicio = unidadSeleccionada.km_proximo_servicio || 0;
   
+    if (kilometraje === 0 && km_actual > 0) {
+      unidadSeleccionada.kilometraje = km_actual;
+    }
+  
+    if (km_proximo_servicio === 0 && km_actual > 0) {
+      unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
+    }
+  
+    if (km_actual === 0 && kilometraje > 0) {
+      unidadSeleccionada.km_actual = kilometraje;
+    }
+
+    // Nuevo: actualizar el próximo servicio automáticamente si es superado
+    if (km_actual >= km_proximo_servicio) {
+      unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
+  }
+  
+    return unidadSeleccionada;
+  }
+
 }

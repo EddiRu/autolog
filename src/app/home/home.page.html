@@ -46,8 +46,66 @@
     </ion-row>
   </ion-grid>
 
+  <!-- SECCIÓN DE COLORIMETRÍA -->
+  <h5 style="text-align: center; margin-top: 20px;">
+    <b>Colorimetría de Unidades</b>
+  </h5>
+  <ion-row>
+    <ion-col size="12" size-sm="10">
+      <ion-searchbar style="--border-radius: 8px; transform: scale(1.21); width: 83%; margin: 0 auto;"
+        placeholder="Buscar por unidad y/o operador" showCancelButton="focus" (ionInput)="buscarUnidad($event)">
+      </ion-searchbar>
+    </ion-col>
+    <ion-col size="12" size-sm="2">
+      <!-- FILTRAR POR ESTADO -->
+      <ion-select style="--border-radius: 8px; width: 83%; margin: 0 auto; background: white;" placeholder="Filtrar por estado"
+      (ionChange)="estadoSeleccionado = $event.detail.value; aplicarFiltros()" fill="outline">
+        <ion-select-option value="">Todos</ion-select-option>
+        <ion-select-option value="verde">En buen estado</ion-select-option>
+        <ion-select-option value="amarillo">Próximo a servicio</ion-select-option>
+        <ion-select-option value="rojo">Servicio vencido</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <ion-card class="custom-card-table-colori">
+    <ion-card-content>
+      <div class="table-container">
+        <table class="responsive-table">
+          <thead>
+            <tr>
+              <th>Unidad</th>
+              <th>Operador</th>
+              <th style="text-align: center;">KM Actual</th>
+              <th style="text-align: center;">KM Próximo Servicio</th>
+              <th style="text-align: center;">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let unidad of colorimetriaPaginada"  [ngClass]="calcularColor(unidad)">
+              <td>{{ unidad.unidad }}</td>
+              <td>{{ unidad.operador || 'No asignado' }}</td>
+              <td style="text-align: center;">{{ unidad.km_actual || 'N/A' }} km</td>
+              <td style="text-align: center;">{{ unidad.km_proximo_servicio || 'N/A' }} km</td>
+              <td style="text-align: center;">
+                <ion-badge [color]="calcularColor(unidad)">
+                  {{ calcularEstado(unidad) }}
+                </ion-badge>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="pagination" style="text-align: center; margin-top: 20px;">
+        <ion-button (click)="paginaColorimetriaAnterior()"
+          [disabled]="paginaColorimetriaActual === 1">Anterior</ion-button>
+        <span>Página {{ paginaColorimetriaActual }} de {{ getTotalPaginasColorimetria() }}</span>
+        <ion-button (click)="paginaColorimetriaSiguiente()"
+          [disabled]="paginaColorimetriaActual === getTotalPaginasColorimetria()">Siguiente</ion-button>
+      </div>
+    </ion-card-content>
+  </ion-card>
 
-
+  <!-- SECCIÓN DE COLORES -->
 
   <!-- SECCIÓN DE HISTORIAL -->
   <ion-grid>
@@ -56,7 +114,8 @@
       <ion-col size="12" size-sm="8">
         <h5 style="text-align: center;">Búsqueda por unidad</h5>
         <ion-searchbar style="--border-radius: 8px; transform: scale(1.21); width: 83%; margin: 0 auto;"
-          placeholder="Buscar algún servicio/unidad/artículo/fecha" showCancelButton="focus" (ionInput)="buscarEvento($event)">
+          placeholder="Buscar algún servicio/unidad/artículo/fecha" showCancelButton="focus"
+          (ionInput)="buscarEvento($event)">
         </ion-searchbar>
       </ion-col>
 
@@ -122,10 +181,10 @@
             <tr *ngFor="let registro of registrosPaginados">
               <!-- Unidad -->
               <td>{{ registro.unidad?.unidad || 'N/A' }}</td>
-  
+
               <!-- Servicio -->
               <td>{{ registro.servicio || 'N/A' }}</td>
-  
+
               <!-- Artículos Utilizados -->
               <td>
                 <ng-container *ngIf="registro.articulos && registro.articulos.length > 0; else noArticulos">
@@ -139,34 +198,35 @@
                   No hay artículos registrados.
                 </ng-template>
               </td>
-  
+
               <!-- Kilometraje -->
               <td>{{ registro.kilometraje ? registro.kilometraje + ' km' : 'N/A' }}</td>
-  
+
               <!-- Costo Total -->
               <td>${{ registro.costo | number: '1.2-2' || 'N/A' }}</td>
-  
+
               <!-- Fecha -->
               <td>{{ registro.fecha || 'N/A' }}</td>
-  
+
               <!-- Acciones -->
               <td style="text-align: center;">
                 <ion-row class="ion-justify-content-center ion-align-items-center">
                   <!-- Eliminar -->
-                  <ion-button fill="clear" color="danger" size="large" (click)="borrarEvento(registro)" *ngIf="userRole == 'admin'">
+                  <ion-button fill="clear" color="danger" size="large" (click)="borrarEvento(registro)"
+                    *ngIf="userRole == 'admin'">
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
-  
+
                   <!-- Editar -->
                   <ion-button fill="clear" color="primary" size="large" (click)="editarEvento(registro)">
                     <ion-icon slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
-  
+
                   <!-- Ver Detalles -->
                   <ion-button fill="clear" color="secondary" size="large" (click)="detallesEventoRegistro(registro)">
                     <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                   </ion-button>
-  
+
                   <!-- Exportar -->
                   <ion-button fill="clear" color="success" size="large" (click)="exportarHisotiralEspesifico(registro)">
                     <ion-icon slot="icon-only" name="download-outline"></ion-icon>
@@ -179,13 +239,13 @@
       </div>
     </ion-card-content>
   </ion-card>
-  
+
   <div class="pagination">
     <ion-button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</ion-button>
     <span>Página {{ paginaActual }} de {{ getTotalPaginas() }}</span>
     <ion-button (click)="paginaSiguiente()" [disabled]="paginaActual === getTotalPaginas()">Siguiente</ion-button>
   </div>
-  
+
   <!-- Grafica de pastel para indicar los autos más afectados, y grafica de barras para la acitivdad segun el mes -->
 
 
