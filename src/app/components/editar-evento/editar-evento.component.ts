@@ -110,12 +110,28 @@ export class EditarEventoComponent implements OnInit {
   async editarEvento() {
     if (this.editarEventoRegistro.valid) {
       try {
-        const updatedEvento = this.editarEventoRegistro.value;
+        // Obtenemos el ID de la unidad seleccionada
+        const unidadSeleccionadaId = this.editarEventoRegistro.get('unidad')?.value;
+  
+        // Buscamos la unidad en el listado de autos
+        const unidadSeleccionada = this.autos.find((auto: any) => auto.id === unidadSeleccionadaId);
+  
+        // Creamos un objeto con la unidad (id y nombre) y otros datos del formulario
+        const updatedEvento = {
+          ...this.editarEventoRegistro.value,
+          unidad: {
+            id: unidadSeleccionada.id,
+            unidad: unidadSeleccionada.unidad,
+          },
+        };
+  
+        // Guardamos el evento actualizado en Firebase
         await this.firebaseService.updateEvento(updatedEvento);
+  
         this.presentToast('Evento editado correctamente', 'bottom', 'success');
         this.cancel();
       } catch (error) {
-        console.error(error);
+        console.error('Error al editar el evento:', error);
         this.presentToast('Error al editar evento', 'bottom', 'danger');
       }
     } else {

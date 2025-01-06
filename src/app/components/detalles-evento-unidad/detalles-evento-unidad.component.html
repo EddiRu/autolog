@@ -1,7 +1,7 @@
 <ion-header>
   <ion-toolbar>
     <ion-title style="text-align: center;">
-      Detalles de la unidad - {{evento.unidad.unidad}}
+      Detalles de la unidad - {{ evento.unidad.unidad }}
     </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="cancel()">
@@ -49,18 +49,15 @@
         <ion-card style="height: 55%;">
           <ion-card-content style="text-align: center; margin-top: 2%;">
             <ion-button shape="round" expand="block" (click)="exportarHisotiral()" color="success">
-              Exportar a excel
+              Exportar a Excel
             </ion-button>
           </ion-card-content>
         </ion-card>
       </ion-col>
     </ion-row>
   </ion-grid>
-  
 
-  <!-- FIN SECCIÓN ESPECIAL -->
-
-
+  <!-- Tabla de historial -->
   <ion-card class="custom-card-table">
     <ion-card-content>
       <div class="table-container">
@@ -69,7 +66,7 @@
             <tr>
               <th>Unidad</th>
               <th>Servicio</th>
-              <th>Artículo</th>
+              <th>Artículos</th>
               <th>Costo</th>
               <th>Fecha</th>
             </tr>
@@ -78,8 +75,19 @@
             <tr *ngFor="let registro of registrosPaginados">
               <td>{{ registro.unidad.unidad }}</td>
               <td>{{ registro.servicio }}</td>
-              <td>{{ registro.articulo }}</td>
-              <td>{{ registro.costo }}</td>
+              <td>
+                <div *ngIf="registro.articulos && registro.articulos.length > 0; else noArticulos">
+                  <ul>
+                    <li *ngFor="let articulo of registro.articulos">
+                      {{ articulo.nombre }} ({{ articulo.cantidad }}) - ${{ articulo.precio }}
+                    </li>
+                  </ul>
+                </div>
+                <ng-template #noArticulos>
+                  {{ registro.articulo || 'Sin artículos' }}
+                </ng-template>
+              </td>
+              <td>${{ registro.costo | number }}</td>
               <td>{{ registro.fecha }}</td>
             </tr>
           </tbody>

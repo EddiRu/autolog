@@ -41,7 +41,7 @@ export class HomePage implements OnInit {
   registros: any[] = []; // Lista completa de registros
   registrosPaginados: any[] = []; // Registros visibles en la página actual
   paginaActual: number = 1; // Página actual
-  registrosPorPagina: number = 3; // Registros por página
+  registrosPorPagina: number = 5; // Registros por página
   registrosOriginales: any[] = []; // Lista completa de registros sin filtrar
 
   fechaInicio: string | null = null; // Fecha inicial seleccionada
@@ -329,33 +329,45 @@ export class HomePage implements OnInit {
   // Exportar todos los eventos
   async exportarTodosLosEventos() {
     if (this.registrosOriginales.length > 0) {
-      const registrosTransformados = this.registrosOriginales.map((registro) => {
-        const { id, ...resto } = registro; // Excluye el campo `id`
-        return {
-          ...resto, // Copia todas las demás propiedades
-          unidad: registro.unidad.unidad, // Reemplaza `unidad` con la placa
-        };
-      });
+        const registrosTransformados = this.registrosOriginales.map((registro) => {
+            const { id, articulos, ...resto } = registro;
 
-      const fechaAcutal = new Date().toISOString().split('T')[0];
+            // Transformar los artículos en una cadena delimitada por comas
+            const articulosString = Array.isArray(articulos)
+                ? articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
+                : 'Sin artículos';
 
-      this.excelService.exportToExcel(registrosTransformados, 'reporte_general_' + fechaAcutal)
+            return {
+                ...resto,
+                unidad: registro.unidad.unidad, // Reemplaza `unidad` con la placa
+                artículos: articulosString, // Agregamos la cadena de artículos como un nuevo campo
+            };
+        });
+
+        const fechaAcutal = new Date().toISOString().split('T')[0];
+
+        this.excelService.exportToExcel(registrosTransformados, 'reporte_general_' + fechaAcutal);
     } else {
-      this.presentToast('No hay datos para exportar', 'bottom', 'warning');
+        this.presentToast('No hay datos para exportar', 'bottom', 'warning');
     }
-  }
-
+}
   async exportarHisotiralEspesifico(item: any) {
-    const auxItem: any = [{
-      fecha: item.fecha,
-      unidad: item.unidad.unidad,
-      servicio: item.servicio,
-      articulo: item.articulo,
-      cantidad: item.costo
-    }]
+    // Transformar los artículos en una cadena delimitada por comas
+    const articulosString = Array.isArray(item.articulos)
+        ? item.articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
+        : item.articulo || 'Sin artículos'; // Fallback para eventos antiguos
 
-    this.excelService.exportToExcel(auxItem, 'reporte_' + item.unidad.unidad + '_' + item.fecha)
-  }
+    const auxItem: any = [{
+        fecha: item.fecha,
+        unidad: item.unidad.unidad,
+        servicio: item.servicio,
+        artículos: articulosString,
+        costo: item.costo,
+    }];
+
+    this.excelService.exportToExcel(auxItem, 'reporte_' + item.unidad.unidad + '_' + item.fecha);
+}
+
 
   async detallesEventoRegistro(item: any) {
     const datos = this.registrosOriginales;

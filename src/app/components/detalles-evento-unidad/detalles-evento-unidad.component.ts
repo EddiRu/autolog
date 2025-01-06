@@ -9,26 +9,21 @@ import { FirebaseService } from 'src/app/services/firebase/firebase.service';
   templateUrl: './detalles-evento-unidad.component.html',
   styleUrls: ['./detalles-evento-unidad.component.scss'],
   standalone: true,
-  imports: [IonicModule, CommonModule]
+  imports: [IonicModule, CommonModule],
 })
 export class DetallesEventoUnidadComponent implements OnInit {
-
   @Input() datos: any;
   @Input() evento: any;
 
-  public historialUnidad: any[] = []; // Almacena los registros filtrados
-  registrosPaginados: any[] = []; // Registros visibles en la página actual
-  paginaActual: number = 1; // Página actual
-  registrosPorPagina: number = 5; // Registros por página
+  public historialUnidad: any[] = [];
+  registrosPaginados: any[] = [];
+  paginaActual: number = 1;
+  registrosPorPagina: number = 5;
 
-  public dineroInvertido: number = 0; // Total de dinero invertido en la unidad
-  public ultimaFechaServicio: string = ""; // Última fecha de servicio
-  public placaUnidad: string = ""; // Placa de la unidad
-  public operadorUnidad: string = ""; // Operador asignado a la unidad
-
-
-  nomOperador: string = ""
-
+  public dineroInvertido: number = 0;
+  public ultimaFechaServicio: string = '';
+  public placaUnidad: string = '';
+  public operadorUnidad: string = '';
 
   constructor(
     private modalController: ModalController,
@@ -40,41 +35,43 @@ export class DetallesEventoUnidadComponent implements OnInit {
 
   ngOnInit() {
     this.cargarHistorial();
-    this.obtenerInformacionUnidad()
+    this.obtenerInformacionUnidad();
   }
 
   async obtenerInformacionUnidad() {
-    // Obtener información del operador y asignar datos relevantes
-    this.firebaseService.getAutos().subscribe({
-      next: (autos) => {
-        const unidad = autos.find((auto: any) => auto.id === this.evento.unidad.id);
-        if (unidad) {
-          this.operadorUnidad = unidad.operador || "No asignado";
-          this.placaUnidad = unidad.unidad || "Sin placa";
-        }
-      },
-      error: (error) => {
-        console.error('Error al obtener información de la unidad:', error);
-      },
-    });
+    try {
+      await this.firebaseService.getAutos().subscribe({
+        next: (autos) => {
+          const unidad = autos.find((auto: any) => auto.id === this.evento.unidad.id);
+          if (unidad) {
+            this.operadorUnidad = unidad.operador || 'No asignado';
+            this.placaUnidad = unidad.unidad || 'Sin placa';
+          }
 
-    // Calcular dinero invertido y última fecha de servicio
-    const registrosFiltrados = this.datos.filter(
-      (registro: any) => registro.unidad.unidad === this.evento.unidad.unidad
-    );
+          const registrosFiltrados = this.datos.filter(
+            (registro: any) => registro.unidad.unidad === this.evento.unidad.unidad
+          );
 
-    this.dineroInvertido = registrosFiltrados.reduce((acc, registro) => acc + registro.costo, 0);
-    this.ultimaFechaServicio = registrosFiltrados
-      .sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0]?.fecha || "Sin servicios";
+          this.dineroInvertido = registrosFiltrados.reduce((acc, registro) => acc + registro.costo, 0);
+          this.ultimaFechaServicio =
+            registrosFiltrados.sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())[0]
+              ?.fecha || 'Sin servicios';
+        },
+        error: (error) => {
+          console.error('Error obteniendo información de la unidad:', error);
+        },
+      })
+
+
+    } catch (error) {
+      console.error('Error obteniendo información de la unidad:', error);
+    }
   }
 
   async cargarHistorial() {
-    // Filtra los registros por la misma unidad que el evento proporcionado
     this.historialUnidad = this.datos
       .filter((registro: any) => registro.unidad.unidad === this.evento.unidad.unidad)
-      .sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime()); // Ordena por fecha descendente
-
-    // Inicializa la tabla con los registros paginados
+      .sort((a: any, b: any) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
     this.actualizarTabla();
   }
 
@@ -104,18 +101,29 @@ export class DetallesEventoUnidadComponent implements OnInit {
 
   exportarHisotiral() {
     const historialExportado = this.historialUnidad.map((registro: any) => {
-      const { unidad, id, ...resto } = registro; // Excluye `unidad` y `id`
-      return {
-        ...resto, // Incluye las demás propiedades
-        unidad: unidad.unidad // Solo guarda la placa de la unidad
-      };
+        const { unidad, id, articulos, ...resto } = registro;
+
+        // Transformar los artículos en una cadena delimitada por comas
+        const articulosString = articulos
+            ? articulos.map((articulo: any) => `${articulo.nombre} (Cantidad: ${articulo.cantidad})`).join(', ')
+            : 'Sin artículos';
+
+        return {
+            ...resto,
+            unidad: unidad.unidad,
+            artículos: articulosString, // Agregamos la cadena de artículos como un nuevo campo
+        };
     });
 
-    this.excelService.exportToExcel(historialExportado, 'reporte_'+this.operadorUnidad+'_'+this.placaUnidad)
-  }
+    // Exportar el historial transformado a Excel
+    this.excelService.exportToExcel(
+        historialExportado,
+        `reporte_${this.operadorUnidad}_${this.placaUnidad}`
+    );
+}
+
 
   async cancel() {
     await this.modalController.dismiss();
   }
-
 }
