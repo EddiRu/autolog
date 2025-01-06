@@ -326,7 +326,7 @@ export class HomePage implements OnInit {
     modalEditEvento.present();
   }
 
-  // Exportar todos los eventos
+  // Exportar todos los eventos a la vez
   async exportarTodosLosEventos() {
     if (this.registrosOriginales.length > 0) {
         const registrosTransformados = this.registrosOriginales.map((registro) => {
