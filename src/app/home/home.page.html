@@ -111,38 +111,63 @@
             <tr>
               <th>Unidad</th>
               <th>Servicio</th>
-              <th>Artículo</th>
+              <th>Artículos Utilizados</th>
               <th>Kilometraje</th>
-              <th>Costo</th>
+              <th>Costo Total</th>
               <th>Fecha</th>
-              <th style="text-align: center;">Eliminar/Editar</th>
-              <th style="text-align: center;">Ver/Exportar</th>
+              <th style="text-align: center;">Acciones</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let registro of registrosPaginados">
-              <td>{{ registro.unidad.unidad }}</td>
-              <td>{{ registro.servicio }}</td>
-              <td>{{ registro.articulo }}</td>
-              <td>{{ registro.kilometraje }}km</td>
-              <td>${{ registro.costo }}</td>
-              <td>{{ registro.fecha }}</td>
+              <!-- Unidad -->
+              <td>{{ registro.unidad?.unidad || 'N/A' }}</td>
+  
+              <!-- Servicio -->
+              <td>{{ registro.servicio || 'N/A' }}</td>
+  
+              <!-- Artículos Utilizados -->
               <td>
+                <ng-container *ngIf="registro.articulos && registro.articulos.length > 0; else noArticulos">
+                  <ul>
+                    <li *ngFor="let articulo of registro.articulos">
+                      {{ articulo.nombre }} ({{ articulo.cantidad || 1 }}) - ${{ articulo.precio }}
+                    </li>
+                  </ul>
+                </ng-container>
+                <ng-template #noArticulos>
+                  No hay artículos registrados.
+                </ng-template>
+              </td>
+  
+              <!-- Kilometraje -->
+              <td>{{ registro.kilometraje ? registro.kilometraje + ' km' : 'N/A' }}</td>
+  
+              <!-- Costo Total -->
+              <td>${{ registro.costo | number: '1.2-2' || 'N/A' }}</td>
+  
+              <!-- Fecha -->
+              <td>{{ registro.fecha || 'N/A' }}</td>
+  
+              <!-- Acciones -->
+              <td style="text-align: center;">
                 <ion-row class="ion-justify-content-center ion-align-items-center">
+                  <!-- Eliminar -->
                   <ion-button fill="clear" color="danger" size="large" (click)="borrarEvento(registro)">
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
+  
+                  <!-- Editar -->
                   <ion-button fill="clear" color="primary" size="large" (click)="editarEvento(registro)">
                     <ion-icon slot="icon-only" name="create-outline"></ion-icon>
                   </ion-button>
-                </ion-row>
-              </td>
-              <td>
-                <ion-row class="ion-justify-content-center ion-align-items-center"
-                  (click)="detallesEventoRegistro(registro)">
-                  <ion-button fill="clear" color="secondary" size="large">
+  
+                  <!-- Ver Detalles -->
+                  <ion-button fill="clear" color="secondary" size="large" (click)="detallesEventoRegistro(registro)">
                     <ion-icon slot="icon-only" name="eye-outline"></ion-icon>
                   </ion-button>
+  
+                  <!-- Exportar -->
                   <ion-button fill="clear" color="success" size="large" (click)="exportarHisotiralEspesifico(registro)">
                     <ion-icon slot="icon-only" name="download-outline"></ion-icon>
                   </ion-button>
@@ -152,15 +177,15 @@
           </tbody>
         </table>
       </div>
-
     </ion-card-content>
-
   </ion-card>
+  
   <div class="pagination">
     <ion-button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</ion-button>
     <span>Página {{ paginaActual }} de {{ getTotalPaginas() }}</span>
     <ion-button (click)="paginaSiguiente()" [disabled]="paginaActual === getTotalPaginas()">Siguiente</ion-button>
   </div>
+  
   <!-- Grafica de pastel para indicar los autos más afectados, y grafica de barras para la acitivdad segun el mes -->
 
 

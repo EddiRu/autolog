@@ -51,14 +51,15 @@ export class FirebaseService {
       updateEvento(reporte: any): Promise<any> {
         const registroRef = doc(this.firestore, `eventos/${reporte.id}`);
         return updateDoc(registroRef, {
-          unidad: reporte.unidad,
-          kilometraje: reporte.kilometraje,
-          servicio: reporte.servicio,
-          articulo: reporte.articulo,
-          costo: reporte.costo,
-          fecha: reporte.fecha
+            unidad: reporte.unidad,
+            kilometraje: reporte.kilometraje,
+            servicio: reporte.servicio,
+            articulos: reporte.articulos, // Campo actualizado para incluir el array de artículos
+            costo: reporte.costo,
+            fecha: reporte.fecha,
+            autUser: reporte.autUser // Usuario que autorizó la operación
         });
-      }
+    }
 
 
   /*

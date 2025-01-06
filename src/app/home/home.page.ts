@@ -41,7 +41,7 @@ export class HomePage implements OnInit {
   registros: any[] = []; // Lista completa de registros
   registrosPaginados: any[] = []; // Registros visibles en la página actual
   paginaActual: number = 1; // Página actual
-  registrosPorPagina: number = 5; // Registros por página
+  registrosPorPagina: number = 3; // Registros por página
   registrosOriginales: any[] = []; // Lista completa de registros sin filtrar
 
   fechaInicio: string | null = null; // Fecha inicial seleccionada
@@ -317,7 +317,7 @@ export class HomePage implements OnInit {
   async editarEvento(item: any) {
     const modalEditEvento = await this.modalController.create({
       component: EditarEventoComponent,
-      cssClass: 'my-custom-class',
+      cssClass: 'my-custom-class-agregar-evento',
       componentProps: {
         evento: item
       }

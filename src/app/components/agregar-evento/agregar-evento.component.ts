@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { FirebaseService } from 'src/app/services/firebase/firebase.service';
 
@@ -12,10 +12,16 @@ import { FirebaseService } from 'src/app/services/firebase/firebase.service';
   imports: [IonicModule, CommonModule, FormsModule, ReactiveFormsModule]
 })
 export class AgregarEventoComponent implements OnInit {
-
   eventoNuevo: FormGroup;
+  autos: any[] = [];
+  buscarArticulo: string = ''; // Texto ingresado en el input
+  articulos: any[] = []; // Lista de artículos obtenidos del backend
+  articulosFiltrados: any[] = []; // Artículos que coinciden con la búsqueda
+  articulosSeleccionados: any[] = []; // Artículos seleccionados para la tabla
 
-  public autos: any = [];
+  // Datos totales 
+  totalSinIVA: any;
+  totalConIVA: any;
 
   constructor(
     private modalController: ModalController,
@@ -27,26 +33,42 @@ export class AgregarEventoComponent implements OnInit {
 
   ngOnInit() {
     this.getAutos();
+    this.getArticulos();
     this.eventoNuevo = this.fb.group({
       unidad: ['', Validators.required],
-      kilometraje: ['', Validators.required],
+      kilometraje: ['', [Validators.required, Validators.min(1)]],
       servicio: ['', Validators.required],
-      articulo: ['', Validators.required],
-      costo: ['', Validators.required],
+      costo: ['', [Validators.required, Validators.min(0)]],
       autUser: ['', Validators.required],
-      fecha: [new Date().toISOString().split('T')[0]]
-    })
+      fecha: [new Date().toISOString().split('T')[0], Validators.required],
+      articulos: this.fb.array([])
+    });
+  }
+
+  get articulosFormArray(): FormArray {
+    return this.eventoNuevo.get('articulos') as FormArray;
+  }
+
+  async getArticulos() {
+    this.firebaseService.getArticulos().subscribe((articulos: any) => {
+      this.articulos = articulos.map((articulo: any) => ({
+        nombre: articulo.articulo,
+        descripcion: articulo.desc,
+        precio: articulo.precio
+      }));
+    });
   }
 
   async getAutos() {
     this.firebaseService.getAutos().subscribe({
       next: (data) => {
         this.autos = data;
+
       },
       error: (error) => {
         console.log('Error getting documents', error);
       }
-    })
+    });
   }
 
   async cancel() {
@@ -57,50 +79,107 @@ export class AgregarEventoComponent implements OnInit {
   async showLoading(msg: string) {
     const loading = await this.loadcontroller.create({
       message: msg,
-      duration: 1500,
+      duration: 1500
     });
-
     loading.present();
   }
 
-  async presentToast(msg: string, position: 'top' | 'middle' | 'bottom', cl: 'danger' | 'success' | 'warning') {
+  async presentToast(
+    msg: string,
+    position: 'top' | 'middle' | 'bottom',
+    cl: 'danger' | 'success' | 'warning'
+  ) {
     const toast = await this.toastController.create({
       message: msg,
       duration: 1500,
       position: position,
       color: cl
     });
-
     await toast.present();
+  }
+
+  filtrarArticulos(event: any) {
+    const query = event.target.value.toLowerCase(); // Obtiene el valor ingresado en minúsculas
+
+    if (query.trim() === '') {
+      this.articulosFiltrados = []; // Si el campo está vacío, limpia los resultados
+      return;
+    }
+
+    // Filtra los artículos que coinciden con el texto ingresado
+    this.articulosFiltrados = this.articulos.filter((articulo) =>
+      articulo.nombre.toLowerCase().includes(query)
+    );
+  }
+
+  eliminarArticulo(index: number) {
+    this.articulosFormArray.removeAt(index); // Elimina el artículo por índice
+    this.calcularTotales(); // Recalcula los totales
+  }
+
+  agregarArticulo(articulo: any) {
+    // Verifica si ya existe el artículo
+    const existe = this.articulosFormArray.controls.some(
+      (control) => control.value.nombre === articulo.nombre
+    );
+    if (existe) return;
+
+    // Agrega un nuevo artículo al FormArray
+    const nuevoArticulo = this.fb.group({
+      nombre: [articulo.nombre, Validators.required],
+      precio: [articulo.precio, Validators.required],
+      cantidad: [1, [Validators.required, Validators.min(1)]],
+    });
+
+    this.articulosFormArray.push(nuevoArticulo);
+    this.calcularTotales(); // Recalcula los totales
+  }
+
+ 
+
+  calcularTotales() {
+    const articulos = this.articulosFormArray.value; // Obtiene los valores del FormArray
+    this.totalSinIVA = articulos.reduce(
+      (sum, articulo) => sum + articulo.precio * articulo.cantidad,
+      0
+    );
+    this.totalConIVA = this.totalSinIVA * 1.16; // Aplica el IVA del 16%
+    this.eventoNuevo.get('costo')?.setValue(this.totalConIVA); // Actualiza el costo en el formulario
   }
 
   async agregarEvento() {
     await this.showLoading('Agregando evento...');
-
+  
     if (this.eventoNuevo.valid) {
       try {
-        const unidad: any = await this.autos.filter((d: any) => d.id === this.eventoNuevo.get('unidad').value);
-
-        const undiadAux = {
-          id: unidad[0]['id'],
-          unidad: unidad[0]['unidad']
+        const unidadSeleccionada = this.autos.find(
+          (d: any) => d.id === this.eventoNuevo.get('unidad')?.value
+        );
+  
+        const unidad = {
+          id: unidadSeleccionada.id,
+          unidad: unidadSeleccionada.unidad
         };
-
-        this.eventoNuevo.get('unidad').setValue(undiadAux);
-
-        this.firebaseService.addEvento(this.eventoNuevo.value).then((res:any) => {
-          this.presentToast('Evento agregado correctamente', 'bottom','success');
-          this.cancel();
-        })
-
+  
+        // Obtenemos los artículos seleccionados desde el FormArray
+        const articulos = this.articulosFormArray.value;
+  
+        const eventoData = {
+          ...this.eventoNuevo.value,
+          unidad,
+          articulos // Incluimos el array de artículos
+        };
+  
+        await this.firebaseService.addEvento(eventoData);
+        this.presentToast('Evento agregado correctamente', 'bottom', 'success');
+        this.cancel();
       } catch (error) {
-        await this.presentToast('Error al agregar evento', 'bottom', 'danger');
+        this.presentToast('Error al agregar evento', 'bottom', 'danger');
         console.error('Error adding document:', error);
-        return;
       }
     } else {
       this.presentToast('Todos los campos son obligatorios', 'bottom', 'warning');
     }
   }
-
+  
 }
