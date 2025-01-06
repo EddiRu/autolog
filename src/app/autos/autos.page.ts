@@ -4,6 +4,7 @@ import { AlertController, LoadingController, ModalController, ToastController } 
 import { AgregarAutoComponent } from '../components/agregar-auto/agregar-auto.component';
 import { FirebaseService } from '../services/firebase/firebase.service';
 import { EditarAutoComponent } from '../components/editar-auto/editar-auto.component';
+import { StorageService } from '../services/storage/storage.service';
 
 @Component({
   selector: 'app-autos',
@@ -11,6 +12,7 @@ import { EditarAutoComponent } from '../components/editar-auto/editar-auto.compo
   styleUrls: ['./autos.page.scss'],
 })
 export class AutosPage implements OnInit {
+  public userRole:string = ''
 
   registros: any[] = []; // Lista completa de registros
   registrosPaginados: any[] = []; // Registros de la página actual
@@ -24,7 +26,8 @@ export class AutosPage implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
     private loadcontroller: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private storageService: StorageService
   ) { }
 
   ngOnInit() {
@@ -55,9 +58,11 @@ export class AutosPage implements OnInit {
   async getAutos(){
     this.firebaseService.getAutos().subscribe({
       next: (data) => {
+        this.storageService.get('currentUser').then((user:any) => {
+          this.userRole = user.rol;
+        })
         this.registros = data;
         this.registrosOriginales = [...data]; // Clona los datos originales
-        console.log(data);
         this.actualizarTabla();
       },
       error: (error) => {

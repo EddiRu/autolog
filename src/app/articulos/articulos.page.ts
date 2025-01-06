@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FirebaseService } from '../services/firebase/firebase.service';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { AgregarArticuloComponent } from '../components/agregar-articulo/agregar-articulo.component';
+import { StorageService } from '../services/storage/storage.service';
 
 @Component({
   selector: 'app-articulos',
@@ -9,6 +10,7 @@ import { AgregarArticuloComponent } from '../components/agregar-articulo/agregar
   styleUrls: ['./articulos.page.scss'],
 })
 export class ArticulosPage implements OnInit {
+  public userRole:string = ''
 
   articulos: any[] = []; // Todos los artículos
   registrosPaginados: any[] = []; // Artículos en la página actual
@@ -22,7 +24,8 @@ export class ArticulosPage implements OnInit {
     private modalController: ModalController,
     private alertController: AlertController,
     private loadcontroller: LoadingController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private storageService: StorageService
   ) { }
 
   ngOnInit() {
@@ -32,6 +35,9 @@ export class ArticulosPage implements OnInit {
   async getArticulos() {
     this.firebaseService.getArticulos().subscribe({
       next: (articulos) => {
+        this.storageService.get('currentUser').then((user:any) => {
+          this.userRole = user.rol;
+        })
         this.articulos = articulos;
         this.articulosFiltrados = [...this.articulos];
         this.actualizarTabla();

@@ -9,7 +9,10 @@ import {
 } from '@angular/fire/firestore';
 import {
   deleteDoc,
-  addDoc
+  addDoc,
+  query,
+  where,
+  getDocs
 } from 'firebase/firestore';
 import {
   Auth
@@ -45,6 +48,19 @@ export class FirebaseService {
     const usuarioRef = doc(this.firestore, `usuarios/${data.id}`);
     return updateDoc(usuarioRef, data);
   }
+
+  async getUserByEmail(email: string) {
+    const usersRef = collection(this.firestore, 'usuarios');
+    const q = query(usersRef, where('email', '==', email));
+    const querySnapshot = await getDocs(q);
+  
+    if (!querySnapshot.empty) {
+      return querySnapshot.docs[0]; // Retorna el primer resultado
+    } else {
+      return null; // No se encontró el usuario
+    }
+  }
+  
 
   /*
       A D M I N I S T R A C I Ó N    D E     E V E N T O S

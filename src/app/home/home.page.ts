@@ -8,12 +8,11 @@ import {
   ApexTitleSubtitle,
   ApexResponsive,
 } from "ng-apexcharts";
-
-import { Router } from '@angular/router';
 import { AlertController, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { AgregarEventoComponent } from '../components/agregar-evento/agregar-evento.component';
 import { EditarEventoComponent } from '../components/editar-evento/editar-evento.component';
 import { DetallesEventoUnidadComponent } from '../components/detalles-evento-unidad/detalles-evento-unidad.component';
+import { StorageService } from '../services/storage/storage.service';
 
 export type ChartOptions = {
   series: ApexAxisChartSeries;
@@ -32,6 +31,8 @@ export type ChartOptions = {
   standalone: false,
 })
 export class HomePage implements OnInit {
+
+  public userRole:string = ''
 
   public chartPieTopCost: Partial<ChartOptions> = { series: [], labels: [] };
   public chartPieTopServices: Partial<ChartOptions> = { series: [], labels: [] };
@@ -53,7 +54,7 @@ export class HomePage implements OnInit {
   constructor(
     private firebaseSerive: FirebaseService,
     private excelService: ExcelService,
-    private router: Router,
+    private storageService: StorageService,
     private modalController: ModalController,
     private toastController: ToastController,
     private alertController: AlertController,
@@ -125,6 +126,9 @@ export class HomePage implements OnInit {
   async getEventos() {
     this.firebaseSerive.getEvento().subscribe({
       next: (data) => {
+        this.storageService.get('currentUser').then((user:any) => {
+          this.userRole = user.rol;
+        })
         const registrosOrdenados = data.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());
         this.registros = registrosOrdenados;
         this.registrosOriginales = [...registrosOrdenados];

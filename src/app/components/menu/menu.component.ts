@@ -15,13 +15,24 @@ import { StorageService } from 'src/app/services/storage/storage.service';
 export class MenuComponent  implements OnInit {
   @Input() titulo:any;
 
+  public userRole: any;
+
   constructor(
     private router: Router,
     private authService: AuthService,
     private storageService: StorageService
   ) { }
 
-  ngOnInit() {}
+  ngOnInit() {
+    setTimeout(() => {
+      this.getRole();
+    }, 500);
+  }
+
+  async getRole(){
+    const user = await this.storageService.get('currentUser');
+    this.userRole = user.rol;
+  }
 
   rToPanelControl(){
     return this.router.navigateByUrl('', {replaceUrl: true});

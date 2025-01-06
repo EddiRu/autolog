@@ -60,6 +60,7 @@ export class AuthService {
   logout() {
     return signOut(this.auth);
   }
+  
 
   // Actualizar usuario en Firestore
   async updateUser(uid: string, { usuario, rol }: { usuario: string; rol: string }) {

@@ -34,7 +34,7 @@
               <td>{{ registro.desc }}</td>
               <td>
                 <ion-row class="ion-justify-content-center ion-align-items-center">
-                  <ion-button fill="clear" color="danger" size="large" (click)="borrarAuto(registro)">
+                  <ion-button fill="clear" color="danger" size="large" (click)="borrarAuto(registro)" *ngIf="userRole == 'admin'">
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
                   <ion-button fill="clear" color="primary" size="large" (click)="editarAuto(registro)">

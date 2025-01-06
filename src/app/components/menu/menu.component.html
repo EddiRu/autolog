@@ -28,12 +28,12 @@
         <ion-icon name="cart-outline" slot="start"></ion-icon>
         <ion-label>Articulos</ion-label>
       </ion-item>
-      <ion-item>
+      <ion-item *ngIf="userRole == 'admin'">
         <ion-label>
           <b>USUARIOS</b>
         </ion-label>
       </ion-item>
-      <ion-item button (click)="rToAdmUsuarios()">
+      <ion-item button (click)="rToAdmUsuarios()" *ngIf="userRole == 'admin'">
         <ion-icon name="person-add-outline" slot="start"></ion-icon>
         <ion-label>Cuentas</ion-label>
       </ion-item>

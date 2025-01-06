@@ -153,7 +153,7 @@
               <td style="text-align: center;">
                 <ion-row class="ion-justify-content-center ion-align-items-center">
                   <!-- Eliminar -->
-                  <ion-button fill="clear" color="danger" size="large" (click)="borrarEvento(registro)">
+                  <ion-button fill="clear" color="danger" size="large" (click)="borrarEvento(registro)" *ngIf="userRole == 'admin'">
                     <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
                   </ion-button>
   
