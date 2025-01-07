@@ -16,6 +16,7 @@ export class EditarEventoComponent implements OnInit {
 
   editarEventoRegistro: FormGroup;
   autos: any[] = [];
+  articulos: any[] = [];
   articulosFiltrados: any[] = [];
   totalSinIVA: number = 0;
   totalConIVA: number = 0;
@@ -26,10 +27,11 @@ export class EditarEventoComponent implements OnInit {
     private toastController: ToastController,
     private fb: FormBuilder,
     private firebaseService: FirebaseService
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.getAutos();
+    this.getArticulos();
     this.editarEventoRegistro = this.fb.group({
       id: [this.evento.id, Validators.required],
       unidad: [this.evento.unidad.id, Validators.required],
@@ -65,6 +67,16 @@ export class EditarEventoComponent implements OnInit {
     });
   }
 
+  async getArticulos() {
+    this.firebaseService.getArticulos().subscribe((articulos: any) => {
+      this.articulos = articulos.map((articulo: any) => ({
+        nombre: articulo.articulo,
+        descripcion: articulo.desc,
+        precio: articulo.precio
+      }));
+    });
+  }
+
   filtrarArticulos(event: any) {
     const query = event.target.value.toLowerCase();
     if (query.trim() === '') {
@@ -74,6 +86,9 @@ export class EditarEventoComponent implements OnInit {
 
     // Implementación de búsqueda
     // Actualizar la lista según tus datos
+    this.articulosFiltrados = this.articulos.filter((articulo) =>
+      articulo.nombre.toLowerCase().includes(query)
+    );
   }
 
   agregarArticulo(articulo: any) {
@@ -85,8 +100,8 @@ export class EditarEventoComponent implements OnInit {
     this.articulosFormArray.push(
       this.fb.group({
         nombre: [articulo.nombre, Validators.required],
-        precio: [articulo.precio, Validators.required],
-        cantidad: [1, [Validators.required, Validators.min(1)]]
+        precio: [articulo.precio, [Validators.required, Validators.min(0)]], // Campo editable
+        cantidad: [1, [Validators.required, Validators.min(1)]], // Campo editable
       })
     );
     this.calcularTotales();
@@ -97,10 +112,11 @@ export class EditarEventoComponent implements OnInit {
     this.calcularTotales();
   }
 
+
   calcularTotales() {
     const articulos = this.articulosFormArray.value;
     this.totalSinIVA = articulos.reduce(
-      (sum, articulo) => sum + articulo.precio * articulo.cantidad,
+      (sum, articulo) => sum + (articulo.precio || 0) * (articulo.cantidad || 1),
       0
     );
     this.totalConIVA = this.totalSinIVA * 1.16;
@@ -110,13 +126,9 @@ export class EditarEventoComponent implements OnInit {
   async editarEvento() {
     if (this.editarEventoRegistro.valid) {
       try {
-        // Obtenemos el ID de la unidad seleccionada
         const unidadSeleccionadaId = this.editarEventoRegistro.get('unidad')?.value;
-  
-        // Buscamos la unidad en el listado de autos
         const unidadSeleccionada = this.autos.find((auto: any) => auto.id === unidadSeleccionadaId);
-  
-        // Creamos un objeto con la unidad (id y nombre) y otros datos del formulario
+
         const updatedEvento = {
           ...this.editarEventoRegistro.value,
           unidad: {
@@ -124,19 +136,18 @@ export class EditarEventoComponent implements OnInit {
             unidad: unidadSeleccionada.unidad,
           },
         };
-  
-        // Guardamos el evento actualizado en Firebase
-        await this.firebaseService.updateEvento(updatedEvento).then((res:any) => {
-          unidadSeleccionada.km_actual = this.editarEventoRegistro.get('kilometraje').value;
-          const unidadActulizacion = this.verificarDatosIniciales(unidadSeleccionada)
 
-          this.firebaseService.updateAuto(unidadActulizacion).then(() => {
+        await this.firebaseService.updateEvento(updatedEvento).then(() => {
+          unidadSeleccionada.km_actual = this.editarEventoRegistro.get('kilometraje').value;
+          const unidadActualizada = this.verificarDatosIniciales(unidadSeleccionada);
+
+          this.firebaseService.updateAuto(unidadActualizada).then(() => {
             console.log('Unidad actualizada correctamente');
           }).catch((error) => {
             console.error('Error updating document:', error);
           });
-        })
-  
+        });
+
         this.presentToast('Evento editado correctamente', 'bottom', 'success');
         this.cancel();
       } catch (error) {
@@ -166,15 +177,15 @@ export class EditarEventoComponent implements OnInit {
     const km_actual = unidadSeleccionada.km_actual || 0;
     const kilometraje = unidadSeleccionada.kilometraje || 0;
     const km_proximo_servicio = unidadSeleccionada.km_proximo_servicio || 0;
-  
+
     if (kilometraje === 0 && km_actual > 0) {
       unidadSeleccionada.kilometraje = km_actual;
     }
-  
+
     if (km_proximo_servicio === 0 && km_actual > 0) {
       unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
     }
-  
+
     if (km_actual === 0 && kilometraje > 0) {
       unidadSeleccionada.km_actual = kilometraje;
     }
@@ -182,8 +193,8 @@ export class EditarEventoComponent implements OnInit {
     // Nuevo: actualizar el próximo servicio automáticamente si es superado
     if (km_actual >= km_proximo_servicio) {
       unidadSeleccionada.km_proximo_servicio = km_actual + 10000;
-  }
-  
+    }
+
     return unidadSeleccionada;
   }
 }

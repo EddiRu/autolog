@@ -6,6 +6,9 @@ import { FirebaseService } from '../services/firebase/firebase.service';
 import { EditarAutoComponent } from '../components/editar-auto/editar-auto.component';
 import { StorageService } from '../services/storage/storage.service';
 
+
+import * as XLSX from 'xlsx';
+
 @Component({
   selector: 'app-autos',
   templateUrl: './autos.page.html',
@@ -179,6 +182,5 @@ export class AutosPage implements OnInit {
     }
     
   }
-  
 
 }

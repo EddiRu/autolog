@@ -124,14 +124,14 @@ export class AgregarEventoComponent implements OnInit {
       (control) => control.value.nombre === articulo.nombre
     );
     if (existe) return;
-
+  
     // Agrega un nuevo artículo al FormArray
     const nuevoArticulo = this.fb.group({
       nombre: [articulo.nombre, Validators.required],
-      precio: [articulo.precio, Validators.required],
-      cantidad: [1, [Validators.required, Validators.min(1)]],
+      precio: [articulo.precio, [Validators.required, Validators.min(0)]], // Campo editable
+      cantidad: [1, [Validators.required, Validators.min(1)]], // Campo editable
     });
-
+  
     this.articulosFormArray.push(nuevoArticulo);
     this.calcularTotales(); // Recalcula los totales
   }
@@ -142,7 +142,7 @@ export class AgregarEventoComponent implements OnInit {
   calcularTotales() {
     const articulos = this.articulosFormArray.value; // Obtiene los valores del FormArray
     this.totalSinIVA = articulos.reduce(
-      (sum, articulo) => sum + articulo.precio * articulo.cantidad,
+      (sum, articulo) => sum + (articulo.precio || 0) * (articulo.cantidad || 1),
       0
     );
     this.totalConIVA = this.totalSinIVA * 1.16; // Aplica el IVA del 16%

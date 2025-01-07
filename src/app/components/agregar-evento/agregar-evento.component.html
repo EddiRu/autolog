@@ -88,7 +88,7 @@
         </div>
 
 
-        <!--Tabla con los artículos seleccionados-->
+        <!-- Tabla con los artículos seleccionados -->
         <ion-card class="custom-card-table">
           <ion-card-content>
             <ion-grid>
@@ -108,17 +108,17 @@
                         <!-- Recorremos el FormArray con formGroupName -->
                         <tr *ngFor="let articulo of articulosFormArray.controls; let i = index" [formGroupName]="i">
                           <td>{{ articulo.get('nombre')?.value }}</td>
-                          <td>{{ articulo.get('precio')?.value | currency }}</td>
+                          <td>
+                            <!-- Input reactivo para el precio -->
+                            <ion-input type="number" formControlName="precio" min="0" fill="outline"
+                              placeholder="Precio" (ionInput)="calcularTotales()"
+                              style="font-size: small; width: 80px;"></ion-input>
+                          </td>
                           <td>
                             <!-- Input reactivo para la cantidad -->
-                            <ion-input
-                              type="number"
-                              formControlName="cantidad"
-                              min="1"
-                              fill="outline"
-                              style="font-size: small; width: 80px;"
-                              (ionInput)="calcularTotales()"
-                            ></ion-input>
+                            <ion-input type="number" formControlName="cantidad" min="1" fill="outline"
+                              placeholder="Cantidad" (ionInput)="calcularTotales()"
+                              style="font-size: small; width: 80px;"></ion-input>
                           </td>
                           <td style="text-align: center;">
                             <!-- Botón para eliminar el artículo -->
@@ -128,12 +128,10 @@
                           </td>
                         </tr>
                       </tbody>
-                      
                     </table>
                   </div>
                 </ion-col>
                 <ion-col size="12" size-sm="4">
-
                   <div style="text-align: center; font-size: large; font-weight: bold;">
                     Totales:
                   </div>
@@ -145,12 +143,12 @@
                     <span>Total con IVA:</span>
                     <span>{{ totalConIVA | currency }}</span>
                   </div>
-
                 </ion-col>
               </ion-row>
             </ion-grid>
           </ion-card-content>
         </ion-card>
+
       </ion-col>
     </ion-row>
 
