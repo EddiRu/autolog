@@ -44,7 +44,8 @@ export class EditarEventoComponent implements OnInit {
         this.fb.group({
           nombre: [articulo.nombre, Validators.required],
           precio: [articulo.precio, Validators.required],
-          cantidad: [articulo.cantidad, [Validators.required, Validators.min(1)]]
+          cantidad: [articulo.cantidad, [Validators.required, Validators.min(1)]],
+          proveedor: [articulo.proveedor || '', Validators.required]
         })
       ))
     });
@@ -96,12 +97,13 @@ export class EditarEventoComponent implements OnInit {
       (control) => control.value.nombre === articulo.nombre
     );
     if (existe) return;
-
+  
     this.articulosFormArray.push(
       this.fb.group({
         nombre: [articulo.nombre, Validators.required],
         precio: [articulo.precio, [Validators.required, Validators.min(0)]], // Campo editable
         cantidad: [1, [Validators.required, Validators.min(1)]], // Campo editable
+        proveedor: ['', Validators.required] // Campo editable para el proveedor
       })
     );
     this.calcularTotales();
@@ -128,26 +130,27 @@ export class EditarEventoComponent implements OnInit {
       try {
         const unidadSeleccionadaId = this.editarEventoRegistro.get('unidad')?.value;
         const unidadSeleccionada = this.autos.find((auto: any) => auto.id === unidadSeleccionadaId);
-
+  
         const updatedEvento = {
           ...this.editarEventoRegistro.value,
           unidad: {
             id: unidadSeleccionada.id,
             unidad: unidadSeleccionada.unidad,
           },
+          articulos: this.articulosFormArray.value // Incluye todos los campos del formulario reactivo
         };
-
+  
         await this.firebaseService.updateEvento(updatedEvento).then(() => {
           unidadSeleccionada.km_actual = this.editarEventoRegistro.get('kilometraje').value;
           const unidadActualizada = this.verificarDatosIniciales(unidadSeleccionada);
-
+  
           this.firebaseService.updateAuto(unidadActualizada).then(() => {
             console.log('Unidad actualizada correctamente');
           }).catch((error) => {
             console.error('Error updating document:', error);
           });
         });
-
+  
         this.presentToast('Evento editado correctamente', 'bottom', 'success');
         this.cancel();
       } catch (error) {
@@ -158,6 +161,7 @@ export class EditarEventoComponent implements OnInit {
       this.presentToast('Todos los campos son obligatorios', 'bottom', 'warning');
     }
   }
+  
 
   async cancel() {
     this.modalController.dismiss();

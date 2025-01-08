@@ -130,14 +130,12 @@ export class AgregarEventoComponent implements OnInit {
       nombre: [articulo.nombre, Validators.required],
       precio: [articulo.precio, [Validators.required, Validators.min(0)]], // Campo editable
       cantidad: [1, [Validators.required, Validators.min(1)]], // Campo editable
+      proveedor: ['', Validators.required] // Nuevo campo editable para el proveedor
     });
   
     this.articulosFormArray.push(nuevoArticulo);
     this.calcularTotales(); // Recalcula los totales
   }
-
-
-
 
   calcularTotales() {
     const articulos = this.articulosFormArray.value; // Obtiene los valores del FormArray
@@ -151,7 +149,7 @@ export class AgregarEventoComponent implements OnInit {
 
   async agregarEvento() {
     await this.showLoading('Agregando evento...');
-
+  
     if (this.eventoNuevo.valid) {
       try {
         const unidadSeleccionada = this.autos.find(
@@ -161,20 +159,20 @@ export class AgregarEventoComponent implements OnInit {
           id: unidadSeleccionada.id,
           unidad: unidadSeleccionada.unidad
         };
-
+  
         // Obtenemos los artículos seleccionados desde el FormArray
         const articulos = this.articulosFormArray.value;
-
+  
         const eventoData = {
           ...this.eventoNuevo.value,
           unidad,
-          articulos // Incluimos el array de artículos
+          articulos // Incluimos el array de artículos con proveedor
         };
-
+  
         await this.firebaseService.addEvento(eventoData).then((res) => {
           unidadSeleccionada.km_actual = this.eventoNuevo.get('kilometraje').value;
-          const unidadActulizacion = this.verificarDatosIniciales(unidadSeleccionada)
-
+          const unidadActulizacion = this.verificarDatosIniciales(unidadSeleccionada);
+  
           this.firebaseService.updateAuto(unidadActulizacion).then(() => {
             console.log('Unidad actualizada correctamente');
           }).catch((error) => {

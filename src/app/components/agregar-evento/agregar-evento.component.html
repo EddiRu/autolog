@@ -105,20 +105,41 @@
                         </tr>
                       </thead>
                       <tbody formArrayName="articulos">
-                        <!-- Recorremos el FormArray con formGroupName -->
                         <tr *ngFor="let articulo of articulosFormArray.controls; let i = index" [formGroupName]="i">
                           <td>{{ articulo.get('nombre')?.value }}</td>
                           <td>
                             <!-- Input reactivo para el precio -->
-                            <ion-input type="number" formControlName="precio" min="0" fill="outline"
-                              placeholder="Precio" (ionInput)="calcularTotales()"
-                              style="font-size: small; width: 80px;"></ion-input>
+                            <ion-input
+                              type="number"
+                              formControlName="precio"
+                              min="0"
+                              fill="outline"
+                              placeholder="Precio"
+                              (ionInput)="calcularTotales()"
+                              style="font-size: small; width: 80px;"
+                            ></ion-input>
                           </td>
                           <td>
                             <!-- Input reactivo para la cantidad -->
-                            <ion-input type="number" formControlName="cantidad" min="1" fill="outline"
-                              placeholder="Cantidad" (ionInput)="calcularTotales()"
-                              style="font-size: small; width: 80px;"></ion-input>
+                            <ion-input
+                              type="number"
+                              formControlName="cantidad"
+                              min="1"
+                              fill="outline"
+                              placeholder="Cantidad"
+                              (ionInput)="calcularTotales()"
+                              style="font-size: small; width: 80px;"
+                            ></ion-input>
+                          </td>
+                          <td>
+                            <!-- Input reactivo para el proveedor -->
+                            <ion-input
+                              type="text"
+                              formControlName="proveedor"
+                              fill="outline"
+                              placeholder="Proveedor"
+                              style="font-size: small; width: 120px;"
+                            ></ion-input>
                           </td>
                           <td style="text-align: center;">
                             <!-- Botón para eliminar el artículo -->
@@ -128,6 +149,7 @@
                           </td>
                         </tr>
                       </tbody>
+                      
                     </table>
                   </div>
                 </ion-col>
