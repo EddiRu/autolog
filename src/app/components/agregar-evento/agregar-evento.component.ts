@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { IonicModule, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { FirebaseService } from 'src/app/services/firebase/firebase.service';
+import { AgregarArticuloComponent } from '../agregar-articulo/agregar-articulo.component';
 
 @Component({
   selector: 'app-agregar-evento',
@@ -119,6 +120,7 @@ export class AgregarEventoComponent implements OnInit {
   }
 
   agregarArticulo(articulo: any) {
+    console.log(articulo)
     // Verifica si ya existe el artículo
     const existe = this.articulosFormArray.controls.some(
       (control) => control.value.nombre === articulo.nombre
@@ -213,6 +215,28 @@ export class AgregarEventoComponent implements OnInit {
   }
   
     return unidadSeleccionada;
+  }
+
+  async agregarArticuloNuevo(){
+    const modalArticulo = await this.modalController.create({
+      component: AgregarArticuloComponent,
+    });
+
+    await modalArticulo.present();
+
+    modalArticulo.onDidDismiss().then((result) => {
+      if (result.data) {
+        const auxData = {
+          nombre: result.data.articulo,
+          precio: result.data.precio,
+          descripcion: result.data.desc
+        }
+        this.getArticulos();
+        this.agregarArticulo(auxData);
+      }
+        
+    });
+
   }
 
 }

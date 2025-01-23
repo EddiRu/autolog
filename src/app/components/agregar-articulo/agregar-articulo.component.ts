@@ -41,6 +41,10 @@ export class AgregarArticuloComponent implements OnInit {
     await this.modalController.dismiss();
   }
 
+  async confirm(item:any){
+    await this.modalController.dismiss(item)
+  }
+
   async showLoading(msg:string) {
     const loading = await this.loadcontroller.create({
       message: msg,
@@ -67,7 +71,7 @@ export class AgregarArticuloComponent implements OnInit {
       try{
         this.firebaseService.addArticulo(this.articuloNuevo.value).then((res:any) => {
           this.presentToast('Artículo agregado correctamente', 'bottom', 'success');
-          this.cancel();
+          this.confirm(this.articuloNuevo.value);
         })
       }catch (error) {
         this.presentToast('Hubo un error al agregar el artículo', 'bottom', 'danger');

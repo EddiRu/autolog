@@ -77,7 +77,28 @@
       <ion-col size="12">
 
         <!-- Input con autocompletado -->
-        <h5 style="text-align: center; margin-bottom: 2.5%;"><b>Lista</b> de artículos</h5>
+        
+        <ion-grid>
+          <ion-row>
+            <ion-col size="12" size-sm="12">
+              <h5 style="text-align: center;"><b>Lista</b> de artículos</h5>
+            </ion-col>
+            <ion-col size="12" size-sm="12" style="text-align: center;">
+              <ion-grid>
+                <ion-row>
+                  <ion-col size="12" size-sm="10">
+                    <h6>Busca y agrega los artículos registrado previamente, <b>en caso de que no encuentres un artículo, da click para agregar un nuevo artículo desde esta pestaña</b></h6>
+                  </ion-col>
+                  <ion-col size="12" size-sm="2">
+                    <ion-button (click)="agregarArticuloNuevo()" fill="clear" shape="round" style="text-align: center;">
+                      <b>Agregar nuevo artículo</b>
+                    </ion-button>
+                  </ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
         <ion-searchbar placeholder="Artículos" style="--background: #ffffff;" (ionInput)="filtrarArticulos($event)">
         </ion-searchbar>
         <div *ngIf="articulosFiltrados.length > 0" class="autocomplete-list">
@@ -179,7 +200,7 @@
 
     <!-- Botón para agregar evento -->
     <ion-col size="12">
-      <ion-button type="submit" expand="block" fill="clear" shape="round" color="success">
+      <ion-button type="submit" expand="block" shape="round" color="success">
         Agregar servicio
       </ion-button>
     </ion-col>

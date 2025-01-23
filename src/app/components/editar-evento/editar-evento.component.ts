@@ -3,6 +3,7 @@ import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { IonicModule, LoadingController, ModalController, ToastController } from '@ionic/angular';
 import { FirebaseService } from 'src/app/services/firebase/firebase.service';
+import { AgregarArticuloComponent } from '../agregar-articulo/agregar-articulo.component';
 
 @Component({
   selector: 'app-editar-evento',
@@ -201,4 +202,26 @@ export class EditarEventoComponent implements OnInit {
 
     return unidadSeleccionada;
   }
+
+  async agregarArticuloNuevo(){
+      const modalArticulo = await this.modalController.create({
+        component: AgregarArticuloComponent,
+      });
+  
+      await modalArticulo.present();
+  
+      modalArticulo.onDidDismiss().then((result) => {
+        if (result.data) {
+          const auxData = {
+            nombre: result.data.articulo,
+            precio: result.data.precio,
+            descripcion: result.data.desc
+          }
+          this.getArticulos();
+          this.agregarArticulo(auxData);
+        }
+          
+      });
+  
+    }
 }

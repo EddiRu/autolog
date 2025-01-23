@@ -40,6 +40,10 @@ const routes: Routes = [
     loadChildren: () => import('./login/login.module').then( m => m.LoginPageModule),
     ...canActivate(redirectLoggedInToHome)
   },
+  {
+    path: 'prueba',
+    loadChildren: () => import('./prueba/prueba.module').then( m => m.PruebaPageModule)
+  },
 ];
 
 @NgModule({
