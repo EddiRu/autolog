@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 import { redirectUnauthorizedTo, redirectLoggedInTo, canActivate } from '@angular/fire/auth-guard';
 
 const redirectUnauthorizedToLogin = () => redirectUnauthorizedTo(['/login']);
-const redirectLoggedInToHome = () => redirectLoggedInTo(['home']);
+const redirectLoggedInToHome = () => redirectLoggedInTo(['panel-control']);
 const routes: Routes = [
   {
     path: 'home',
@@ -12,7 +12,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'panel-control',
     pathMatch: 'full'
   },
   {
@@ -42,7 +42,33 @@ const routes: Routes = [
   },
   {
     path: 'prueba',
-    loadChildren: () => import('./prueba/prueba.module').then( m => m.PruebaPageModule)
+    loadChildren: () => import('./prueba/prueba.module').then( m => m.PruebaPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
+  },
+  {
+    path: 'panel-control',
+    loadChildren: () => import('./ventas/panel-control/panel-control.module').then( m => m.PanelControlPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
+  },
+  {
+    path: 'distribuidores',
+    loadChildren: () => import('./ventas/distribuidores/distribuidores.module').then( m => m.DistribuidoresPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
+  },
+  {
+    path: 'incidentes',
+    loadChildren: () => import('./ventas/incidentes/incidentes.module').then( m => m.IncidentesPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
+  },
+  {
+    path: 'productos',
+    loadChildren: () => import('./ventas/productos/productos.module').then( m => m.ProductosPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
+  },
+  {
+    path: 'historial',
+    loadChildren: () => import('./ventas/historial/historial.module').then( m => m.HistorialPageModule),
+    ...canActivate(redirectUnauthorizedToLogin)
   },
 ];
 

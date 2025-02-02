@@ -35,7 +35,7 @@ export class MenuComponent  implements OnInit {
   }
 
   rToPanelControl(){
-    return this.router.navigateByUrl('', {replaceUrl: true});
+    return this.router.navigateByUrl('/home', {replaceUrl: true});
   }
 
   rToAutosPage(){
@@ -52,6 +52,26 @@ export class MenuComponent  implements OnInit {
 
   rToMiPerfil(){
     return this.router.navigateByUrl('/mi-perfil', {replaceUrl: true});
+  }
+
+  rToPanelVentas(){
+    return this.router.navigateByUrl('/panel-control', {replaceUrl: true});
+  }
+
+  rToHistorialVentas(){
+    return this.router.navigateByUrl('/historial', {replaceUrl: true});
+  }
+
+  rToProductos(){
+    return this.router.navigateByUrl('/productos', {replaceUrl: true});
+  }
+
+  rToDistribu(){
+    return this.router.navigateByUrl('/distribuidores', {replaceUrl: true});
+  }
+
+  rToIncidentes(){
+    return this.router.navigateByUrl('/incidentes', {replaceUrl: true});
   }
 
   logout(){
