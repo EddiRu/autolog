@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { VentasBuenasService } from 'src/app/services/admVentas/diarias/ventasBuenas/ventas-buenas.service';
 import { VentasMalasService } from 'src/app/services/admVentas/diarias/ventasMalas/ventas-malas.service';
 import {
@@ -10,6 +10,10 @@ import {
   ApexDataLabels,
   ApexAxisChartSeries
 } from "ng-apexcharts";
+import { GeoLocationService } from 'src/app/services/geo/geo-location.service';
+import * as L from 'leaflet';
+import { LoadingController, Platform } from '@ionic/angular';
+
 
 
 @Component({
@@ -17,7 +21,12 @@ import {
   templateUrl: './panel-control.page.html',
   styleUrls: ['./panel-control.page.scss'],
 })
-export class PanelControlPage implements OnInit, OnDestroy {
+export class PanelControlPage implements OnInit, OnDestroy, AfterViewInit {
+
+  // Opciones del mapa
+  options: any;
+  // Capas (marcadores u overlays) que se mostrarán
+  layers: any[] = [];
 
   // Variables principales
   public ventasRegistros: any = []
@@ -29,25 +38,58 @@ export class PanelControlPage implements OnInit, OnDestroy {
 
   // Graficos
   public chartMejoresProveedores: Partial<{ series: ApexNonAxisChartSeries, chart: ApexChart, labels: string[] }> = { series: [], labels: [] };
-  public chartVentasDia: Partial<{ 
-    series: ApexAxisChartSeries, 
-    chart: ApexChart, 
+  public chartVentasDia: Partial<{
+    series: ApexAxisChartSeries,
+    chart: ApexChart,
     xaxis: ApexXAxis,
     stroke: ApexStroke,
     dataLabels: ApexDataLabels
   }> = { series: [], xaxis: { categories: [] } };
 
+  // Variables tarjetas
+  totalVentas: number = 0;
+  totalIngresos: number = 0;
+  totalIncidentes: number = 0;
+  incidenteMasFrecuente: string = "N/A";
+
+
+  // Variables para la tabla
+  registros: any[] = [];
+  registrosPaginados: any[] = [];
+  paginaActual: number = 1;
+  registrosPorPagina: number = 5;
+
 
 
   constructor(
     private ventasBuenasService: VentasBuenasService,
-    private ventasSospechosService: VentasMalasService
+    private ventasSospechosService: VentasMalasService,
+    private maps: GeoLocationService,
+    private platform: Platform,
+    private loadingController: LoadingController
   ) { }
 
   ngOnInit() {
     this.actualizarReloj(); // Llamar a la función cuando inicia el componente
     this.intervalo = setInterval(() => this.actualizarReloj(), 1000); // Actualiza cada segundo
     this.getInfo();
+    this.getInfoIncidentes();
+    this.inicializarMapa(this.ventasRegistros)
+  }
+
+  async ngAfterViewInit() {
+    const loading = await this.loadingController.create({
+      message: 'Cargando mapa...',
+      duration: 1000
+    });
+
+    await loading.present();
+
+    setTimeout(() => {
+      window.dispatchEvent(new Event('resize')); // 🔹 Redibujamos el mapa
+    }, 1000);
+
+
   }
 
   ngOnDestroy() {
@@ -55,6 +97,29 @@ export class PanelControlPage implements OnInit, OnDestroy {
       clearInterval(this.intervalo); // Limpia el intervalo al salir de la página
     }
   }
+
+  async inicializarMapa(data: any) {
+    // Configuración inicial del mapa
+    this.options = {
+      layers: [
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          maxZoom: 18,
+          attribution: '© OpenStreetMap contributors'
+        })
+      ],
+      zoom: 13,
+      center: L.latLng(22.768056, -102.533056) // Zacatecas como centro inicial
+    };
+
+    // Extraer direcciones de las ventas
+    const direcciones = data.map((venta) => venta.DOMICILIO);
+    console.log(direcciones)
+
+    // Esperamos a que se agreguen marcadores con sus coordenadas
+    this.layers = await this.maps.agregarMarcadores(direcciones);
+
+  }
+
 
   actualizarReloj() {
     const ahora = new Date();
@@ -88,20 +153,95 @@ export class PanelControlPage implements OnInit, OnDestroy {
     // Obtener solo las ventas actuales
     this.ventasBuenasService.getVentas().subscribe({
       next: (data) => {
-        this.ventasRegistros = data
-        this.generarGraficoProveedores();
-        this.generarGraficoVentasDia();
-        console.log(data)
+        this.ventasRegistros = data;
+
+        // 🔹 Calcular total de ventas e ingresos
+        this.totalVentas = this.ventasRegistros.length;
+        this.totalIngresos = this.ventasRegistros.reduce((total, venta) => total + parseFloat(venta.PRECIO), 0);
+
+        // 🔹 Actualizar la tabla con la paginación
+        this.registros = this.ventasRegistros;
+        this.actualizarTabla(); // <-- 🔹 Aquí se integra la paginación
+
+        // 🔹 Generar gráficos y actualizar el mapa después de obtener los datos
+        setTimeout(() => {
+          this.generarGraficoProveedores();
+          this.generarGraficoVentasDia();
+        }, 300);
+
+        this.inicializarMapa(data);
       },
       error: (error) => console.error("Error al obtener las ventas buenas:", error),
     });
+}
 
+
+
+  getInfoIncidentes() {
     this.ventasSospechosService.getVentas().subscribe({
-      next: (data) => this.ventasSospechosas = data,
-      error: (error) => console.error("Error al obtener las ventas sospechosas:", error),
-    });
+      next: (data) => {
+        this.ventasSospechosas = data;
 
+        // 🔹 Contar el total de incidentes
+        this.totalIncidentes = this.ventasSospechosas.length;
+
+        // 🔹 Detectar el tipo de incidente más frecuente
+        const tiposIncidentes: { [key: string]: number } = {};
+
+        this.ventasSospechosas.forEach((venta) => {
+          let tipo = "Datos incompletos"; // Valor por defecto si falta info
+
+          if (!venta.ID_CILINDRO) tipo = "Falta ID de Cilindro";
+          else if (!venta.ID_VENDEDOR) tipo = "Falta ID de Vendedor";
+          else if (!venta.DOMICILIO) tipo = "Domicilio vacío";
+
+          tiposIncidentes[tipo] = (tiposIncidentes[tipo] || 0) + 1;
+        });
+
+        // 🔹 Encontrar el tipo de incidente más frecuente
+        this.incidenteMasFrecuente = Object.keys(tiposIncidentes).reduce((a, b) =>
+          tiposIncidentes[a] > tiposIncidentes[b] ? a : b, "N/A"
+        );
+
+        console.log("Total de Incidentes:", this.totalIncidentes);
+        console.log("Incidente Más Frecuente:", this.incidenteMasFrecuente);
+      },
+      error: (error) => console.error("Error al obtener incidentes:", error),
+    });
   }
+
+  actualizarTabla() {
+    const inicio = (this.paginaActual - 1) * this.registrosPorPagina;
+    const fin = inicio + this.registrosPorPagina;
+    this.registrosPaginados = this.registros.slice(inicio, fin);
+  }
+
+  // Métodos de Paginación
+  paginaAnterior() {
+    if (this.paginaActual > 1) {
+      this.paginaActual--;
+      this.actualizarTabla();
+    }
+  }
+
+  paginaSiguiente() {
+    if (this.paginaActual < this.getTotalPaginas()) {
+      this.paginaActual++;
+      this.actualizarTabla();
+    }
+  }
+
+  getTotalPaginas(): number {
+    return Math.ceil(this.registros.length / this.registrosPorPagina);
+  }
+
+  // Convertir fecha en formato legible
+  convertirFecha(segundos: number): string {
+    const fecha = new Date(segundos * 1000);
+    return fecha.toLocaleDateString("es-MX", { year: "numeric", month: "short", day: "numeric" });
+  }
+
+
 
   async eliminarRegistrosViejos(servicio: any, fechaHoy: string) {
     servicio.getVentas().subscribe({
@@ -155,14 +295,14 @@ export class PanelControlPage implements OnInit, OnDestroy {
     // Configurar el gráfico Pie
     this.chartMejoresProveedores = {
       series: topProveedores.map((item: any) => item[1]), // Número de ventas por proveedor
-      chart: { 
-        type: "pie", 
-        height: 350, // Ajustamos la altura
-        width: "100%" // Aseguramos que use el ancho del contenedor
+      chart: {
+        type: "pie",
+        height: 600, // Ajustamos la altura
+        width: "155%" // Aseguramos que use el ancho del contenedor
       },
       labels: topProveedores.map((item: any) => item[0]), // Nombre del proveedor
     };
-    
+
   }
 
   generarGraficoVentasDia() {
@@ -201,8 +341,8 @@ export class PanelControlPage implements OnInit, OnDestroy {
       ],
       chart: {
         type: "line",
-        height: 180, // 🔹 Ajuste de altura para que coincida con el Pie Chart
-        width: "150%" // 🔹 Se ajusta automáticamente al ancho del contenedor
+        height: 335, // 🔹 Ajuste de altura para que coincida con el Pie Chart
+        width: "160%" // 🔹 Se ajusta automáticamente al ancho del contenedor
       },
       stroke: {
         curve: "smooth"
@@ -214,7 +354,7 @@ export class PanelControlPage implements OnInit, OnDestroy {
         categories: intervalos // 🔹 Se mantienen los intervalos de 5 horas
       }
     };
-    
+
   }
 
 

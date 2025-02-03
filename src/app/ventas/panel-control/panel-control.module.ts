@@ -9,6 +9,8 @@ import { PanelControlPageRoutingModule } from './panel-control-routing.module';
 import { PanelControlPage } from './panel-control.page';
 import { MenuComponent } from 'src/app/components/menu/menu.component';
 import { NgApexchartsModule } from 'ng-apexcharts';
+import { LeafletModule } from '@bluehalo/ngx-leaflet';
+
 
 @NgModule({
   imports: [
@@ -17,6 +19,7 @@ import { NgApexchartsModule } from 'ng-apexcharts';
     IonicModule,
     PanelControlPageRoutingModule,
     NgApexchartsModule,
+    LeafletModule,
     MenuComponent
   ],
   declarations: [PanelControlPage]
