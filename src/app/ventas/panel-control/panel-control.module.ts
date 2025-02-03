@@ -8,6 +8,7 @@ import { PanelControlPageRoutingModule } from './panel-control-routing.module';
 
 import { PanelControlPage } from './panel-control.page';
 import { MenuComponent } from 'src/app/components/menu/menu.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
   imports: [
@@ -15,6 +16,7 @@ import { MenuComponent } from 'src/app/components/menu/menu.component';
     FormsModule,
     IonicModule,
     PanelControlPageRoutingModule,
+    NgApexchartsModule,
     MenuComponent
   ],
   declarations: [PanelControlPage]

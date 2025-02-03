@@ -1,10 +1,142 @@
 <app-menu titulo="panelVen"></app-menu>
 
 <ion-content id="main-content" [fullscreen]="true">
-  <ion-grid fixed>
+  <h3 style="margin: 1% 2% 0% 2%">
+    <b>Ventas en tiempo real</b> & <span style="font-size:medium;"><ion-icon name="bar-chart-outline"></ion-icon> Analisis por
+      graficos</span>
+      <ion-text class="reloj">{{ fechaHoraActual }}</ion-text>
+  </h3>
+
+  <!-- Estadistica general -->
+   <ion-grid>
     <ion-row>
-      <ion-col size="12" size-md="6"></ion-col>
-      <ion-col size="12" size-md="6"></ion-col>
+      <ion-col size="12" size-sm="3">
+        <!-- Tarejta con el total de ventas del día (Color success) -->
+         <ion-card class="ventas-tarjeta">
+          <ion-card-header>
+            <ion-card-title><b>Total de ventas</b></ion-card-title>
+            <ion-card-title>
+              <ion-grid fixed>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-icon name="bag-check-outline" size="large"></ion-icon>
+                  </ion-col>
+                  <ion-col size="6"></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-title>
+          </ion-card-header>
+         </ion-card>
+      </ion-col>
+
+
+      <ion-col size="12" size-sm="3">
+        <!-- Tarjeta con el número de ingresos del día (Color ) -->
+         <ion-card class="ingresos-tarjeta">
+          <ion-card-header>
+            <ion-card-title><b>Total de ingresos</b></ion-card-title>
+            <ion-card-title>
+              <ion-grid fixed>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-icon name="cash-outline" size="large"></ion-icon>
+                  </ion-col>
+                  <ion-col size="6"></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-title>
+          </ion-card-header>
+         </ion-card>
+      </ion-col>
+      <ion-col size="12" size-sm="3">
+        <!-- Tarjeta con el número total de incidentes (Color warning) -->
+         <ion-card class="incidentes-tarjeta">
+          <ion-card-header>
+            <ion-card-title>Total de incidentes</ion-card-title>
+            <ion-card-title>
+              <ion-grid fixed>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-icon name="alert-circle-outline" size="large"></ion-icon>
+                  </ion-col>
+                  <ion-col size="6"></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-title>
+          </ion-card-header>
+         </ion-card>
+      </ion-col>
+      <ion-col size="12" size-sm="3">
+        <!-- Tarjeta con incidente más frecuente (Color ) -->
+         <ion-card class="incidente-frecuente-tarjeta">
+          <ion-card-header>
+            <ion-card-title>Incidente más frecuente</ion-card-title>
+            <ion-card-title>
+              <ion-grid fixed>
+                <ion-row>
+                  <ion-col size="6">
+                    <ion-icon name="warning-outline" size="large"></ion-icon>
+                  </ion-col>
+                  <ion-col size="6"></ion-col>
+                </ion-row>
+              </ion-grid>
+            </ion-card-title>
+          </ion-card-header>
+         </ion-card>
+      </ion-col>
+    </ion-row>
+   </ion-grid>
+
+
+   <!-- Estadistica -->
+    <!-- Estadística -->
+<div>
+  <ion-grid>
+    <ion-row>
+      <!-- Mejores proveedores (Gráfico Pie) -->
+      <ion-col size="12" size-sm="4">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title style="text-align: center;">Mejores proveedores</ion-card-title>
+          </ion-card-header>
+          <ion-card-content style="display: flex; justify-content: center; align-items: center;">
+            <apx-chart *ngIf="chartMejoresProveedores.series?.length > 0"
+              [series]="chartMejoresProveedores.series"
+              [chart]="chartMejoresProveedores.chart"
+              [labels]="chartMejoresProveedores.labels">
+            </apx-chart>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+
+      <!-- Mapa de ventas -->
+      <ion-col size="12" size-sm="4">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title style="text-align: center;">Mapa de ventas</ion-card-title>
+          </ion-card-header>
+        </ion-card>
+      </ion-col>
+
+      <!-- Ventas en el día -->
+      <ion-col size="12" size-sm="4">
+        <ion-card>
+          <ion-card-header>
+            <ion-card-title style="text-align: center;">Ventas en el día</ion-card-title>
+          </ion-card-header>
+          <ion-card-content style="display: flex; justify-content: center; align-items: center;">
+            <apx-chart *ngIf="chartVentasDia.series?.length > 0"
+              [series]="chartVentasDia.series"
+              [chart]="chartVentasDia.chart"
+              [xaxis]="chartVentasDia.xaxis">
+            </apx-chart>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
     </ion-row>
   </ion-grid>
+</div>
+
+
+   <!-- Tabla de ventas realizadas -->
 </ion-content>
