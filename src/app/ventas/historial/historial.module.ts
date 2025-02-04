@@ -8,6 +8,7 @@ import { HistorialPageRoutingModule } from './historial-routing.module';
 
 import { HistorialPage } from './historial.page';
 import { MenuComponent } from 'src/app/components/menu/menu.component';
+import { NgApexchartsModule } from 'ng-apexcharts';
 
 @NgModule({
   imports: [
@@ -15,7 +16,8 @@ import { MenuComponent } from 'src/app/components/menu/menu.component';
     FormsModule,
     IonicModule,
     HistorialPageRoutingModule,
-    MenuComponent
+    MenuComponent,
+    NgApexchartsModule
   ],
   declarations: [HistorialPage]
 })

@@ -5,37 +5,184 @@
     <b>Hisotiral</b> || <span style="font-size:medium;"><ion-icon size="medium" name="library-outline"></ion-icon>
       Ventas & incidentes</span>
   </h3>
-  <!--h5 style="text-align: center;">Busqueda por ID ó nombre del distribuidor</h5>
+
+  <ion-segment [(ngModel)]="periodoSeleccionado" (ionChange)="cambiarPeriodo(periodoSeleccionado)">
+    <ion-segment-button value="primer">
+      <ion-label>Primer Semestre</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="segundo">
+      <ion-label>Segundo Semestre</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-grid>
+    <ion-row>
+      <ion-col size="12" size-sm="4">
+        <!-- Trajeta grafica de pastel de mejor proveedor -->
+         <ion-card>
+          <ion-card-content style="display: flex; justify-content: center; align-items: center;">
+            <apx-chart *ngIf="chartMejoresProveedores.series?.length > 0" 
+              [series]="chartMejoresProveedores.series"
+              [chart]="chartMejoresProveedores.chart"
+              [labels]="chartMejoresProveedores.labels"
+              [legend]="chartMejoresProveedores.legend"
+              [dataLabels]="chartMejoresProveedores.dataLabels"
+              [title]="chartMejoresProveedores.title">
+            </apx-chart>
+          </ion-card-content>
+         </ion-card>
+      </ion-col>
+      <ion-col size="12" size-sm="4">
+        <!-- Tarjeta grafica de pastel proveedor con más incidentes -->
+         <ion-card>
+          <ion-card-content style="display: flex; justify-content: center; align-items: center;">
+            <apx-chart *ngIf="chartIncidentesProveedores.series?.length > 0" 
+              [series]="chartIncidentesProveedores.series"
+              [chart]="chartIncidentesProveedores.chart"
+              [labels]="chartIncidentesProveedores.labels"
+              [legend]="chartIncidentesProveedores.legend"
+              [dataLabels]="chartIncidentesProveedores.dataLabels"
+              [title]="chartIncidentesProveedores.title">
+            </apx-chart>
+          </ion-card-content>
+         </ion-card>
+      </ion-col>
+      <ion-col size="12" size-sm="4">
+        <!-- Tarjeta grafico de berrras números de incidentes -->
+        <ion-card>
+          <ion-card-content style="display: flex; justify-content: center; align-items: center;">
+            <apx-chart *ngIf="chartTiposIncidentes.series?.length > 0" 
+              [series]="chartTiposIncidentes.series"
+              [chart]="chartTiposIncidentes.chart"
+              [xaxis]="chartTiposIncidentes.xaxis"
+              [title]="chartTiposIncidentes.title"
+              [dataLabels]="chartTiposIncidentes.dataLabels"
+              [stroke]="chartTiposIncidentes.stroke">
+            </apx-chart>
+          </ion-card-content>
+        </ion-card>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <h5 style="text-align: center;">Busqueda por ID ó nombre del distribuidor</h5>
   <div style="width: 98%; margin: 1%;">
-    <ion-searchbar style="--border-radius: 8px; transform: scale(1.2);  width: 83%; margin: 0 auto;"
-      placeholder="ID ó nombre del distribuidor" [debounce]="250" showCancelButton="focus"></ion-searchbar>
+    <ion-searchbar 
+      style="--border-radius: 8px; transform: scale(1.2); width: 83%; margin: 0 auto;"
+      placeholder="ID ó nombre del distribuidor"
+      [debounce]="250"
+      showCancelButton="focus"
+      [(ngModel)]="busquedaProveedor"
+      (ionInput)="filtrarPorProveedor()">
+    </ion-searchbar>
   </div>
-  <div>
-  </div-->
+  
 
-  <div>
-    <ion-grid>
-      <ion-row>
-        <ion-col size="12" size-sm="2">
+  <!-- Sección de busqueda x proveedor -->
+  <ion-grid>
+    <ion-row>
+      <!-- Tabla de Ventas -->
+      <ion-col size="12" size-sm="6">
+        <h5 style="text-align: center;">Ventas del Proveedor</h5>
+        <ion-card>
+          <ion-card-content>
+            <div class="table-responsive">
+              <table class="ventas-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Domicilio</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let venta of ventasPaginadas">
+                    <td>{{ venta.ID_VENDEDOR }}</td>
+                    <td>{{ venta.DOMICILIO }}</td>
+                    <td>{{ venta.FECHA_VENTA }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ion-card-content>
+          
+        </ion-card>
+        <div class="pagination">
+          <ion-button (click)="paginaAnteriorVentas()" [disabled]="paginaActualVentas === 1">Anterior</ion-button>
+          <span>Página {{ paginaActualVentas }} de {{ getTotalPaginasVentas() }}</span>
+          <ion-button (click)="paginaSiguienteVentas()" [disabled]="paginaActualVentas === getTotalPaginasVentas()">Siguiente</ion-button>
+        </div>
+      </ion-col>
+  
+      <!-- Tabla de Ventas con Incidentes -->
+      <ion-col size="12" size-sm="6">
+        <h5 style="text-align: center;">Ventas con Incidentes</h5>
+        <ion-card>
+          <ion-card-content>
+            <div class="table-responsive">
+              <table class="incidentes-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Tipo de Incidente</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let incidente of incidentesPaginados">
+                    <td>{{ incidente.ID_VENDEDOR }}</td>
+                    <td>{{ incidente.tipoIncidente }}</td>
+                    <td>{{ incidente.FECHA_VENTA }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </ion-card-content>
+          
+        </ion-card>
+        <div class="pagination">
+          <ion-button (click)="paginaAnteriorIncidentes()" [disabled]="paginaActualIncidentes === 1">Anterior</ion-button>
+          <span>Página {{ paginaActualIncidentes }} de {{ getTotalPaginasIncidentes() }}</span>
+          <ion-button (click)="paginaSiguienteIncidentes()" [disabled]="paginaActualIncidentes === getTotalPaginasIncidentes()">Siguiente</ion-button>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+  
 
-        </ion-col>
-        <ion-col size="12" size-sm="2">
+  <ion-grid>
+    <ion-row>
+      <ion-col size="6">
+        <h5 style="text-align: center;">Estadísticas en las <br> ventas del Proveedor</h5>
+        <apx-chart *ngIf="chartActividadVentas" 
+          [series]="chartActividadVentas.series"
+          [chart]="chartActividadVentas.chart"
+          [xaxis]="chartActividadVentas.xaxis"
+          [title]="chartActividadVentas.title"
+          [dataLabels]="chartActividadVentas.dataLabels"
+          [stroke]="chartActividadVentas.stroke">
+        </apx-chart>
+      </ion-col>
+      
+      <ion-col size="6">
+        <h5 style="text-align: center;">Estadísticas <br> de incidentes del Proveedor</h5>
+        <apx-chart *ngIf="chartActividadIncidentes" 
+          [series]="chartActividadIncidentes.series"
+          [chart]="chartActividadIncidentes.chart"
+          [xaxis]="chartActividadIncidentes.xaxis"
+          [title]="chartActividadIncidentes.title"
+          [dataLabels]="chartActividadIncidentes.dataLabels"
+          [stroke]="chartActividadIncidentes.stroke">
+        </apx-chart>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
 
-        </ion-col>
-        <ion-col size="12" size-sm="2">
-
-        </ion-col>
-        <ion-col size="12" size-sm="2">
-
-        </ion-col>
-      </ion-row>
-    </ion-grid>    
-  </div>
 
 
-  <ion-fab horizontal="end" vertical="bottom" slot="fixed">
+  <!--ion-fab horizontal="end" vertical="bottom" slot="fixed">
     <ion-fab-button>
       <ion-icon name="logo-whatsapp"></ion-icon>
     </ion-fab-button>
-  </ion-fab>
+  </ion-fab-->
 </ion-content>
