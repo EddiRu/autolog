@@ -13,7 +13,7 @@ import {
 import { GeoLocationService } from 'src/app/services/geo/geo-location.service';
 import * as L from 'leaflet';
 import { LoadingController, Platform } from '@ionic/angular';
-
+import "leaflet.markercluster"; // 🔹 Importamos el clúster de Leaflet
 
 
 @Component({
@@ -59,6 +59,58 @@ export class PanelControlPage implements OnInit, OnDestroy, AfterViewInit {
   paginaActual: number = 1;
   registrosPorPagina: number = 5;
 
+  // Variables para la tabla de incidentes
+  incidentesLista: any[] = [];
+  incidentesPagina: any[] = [];
+  paginaActualIncidentes: number = 1;
+  incidentesPorPagina: number = 5;
+
+  // 🔹 Configuración del gráfico de pastel (Incidentes por Vendedor)
+  graficoPastel: {
+    series: number[];
+    chart: ApexChart;
+    labels: string[];
+    colors: string[];
+    legend: ApexLegend;
+  } = {
+      series: [],
+      chart: { type: "pie", width: "100%" },
+      labels: [],
+      colors: ["#FF4560", "#008FFB", "#00E396", "#FEB019", "#775DD0"],
+      legend: { position: "bottom" }
+    };
+
+
+
+    graficoBarras: {
+      series: { name: string; data: number[] }[];
+      chart: ApexChart;
+      xaxis: ApexXAxis;
+      colors: string[];
+      dataLabels: ApexDataLabels;
+    } = {
+      series: [{ name: "Incidentes", data: [] }],
+      chart: { type: "bar", height: 250 },
+      xaxis: {
+        categories: [], // 🔹 Se llenará con los nombres de los incidentes
+        labels: {
+          rotate: -45, // 🔹 Rotar los nombres si son largos
+          style: {
+            fontSize: "12px",
+            fontWeight: "bold"
+          }
+        }
+      },
+      colors: ["#FF4560"],
+      dataLabels: {
+        enabled: true, // 🔹 Mostrar números dentro de las barras
+        style: {
+          fontSize: "14px",
+          fontWeight: "bold",
+          colors: ["#fff"] // 🔹 Texto blanco dentro de la barra
+        }
+      }
+    };
 
 
   constructor(
@@ -173,7 +225,7 @@ export class PanelControlPage implements OnInit, OnDestroy, AfterViewInit {
       },
       error: (error) => console.error("Error al obtener las ventas buenas:", error),
     });
-}
+  }
 
 
 
@@ -181,34 +233,85 @@ export class PanelControlPage implements OnInit, OnDestroy, AfterViewInit {
     this.ventasSospechosService.getVentas().subscribe({
       next: (data) => {
         this.ventasSospechosas = data;
-
-        // 🔹 Contar el total de incidentes
         this.totalIncidentes = this.ventasSospechosas.length;
-
-        // 🔹 Detectar el tipo de incidente más frecuente
+  
         const tiposIncidentes: { [key: string]: number } = {};
-
+        const vendedoresIncidentes: { [key: string]: number } = {};
+        this.incidentesLista = []; 
+  
         this.ventasSospechosas.forEach((venta) => {
-          let tipo = "Datos incompletos"; // Valor por defecto si falta info
-
+          let tipo = "Datos incompletos";
+  
           if (!venta.ID_CILINDRO) tipo = "Falta ID de Cilindro";
           else if (!venta.ID_VENDEDOR) tipo = "Falta ID de Vendedor";
           else if (!venta.DOMICILIO) tipo = "Domicilio vacío";
-
+  
           tiposIncidentes[tipo] = (tiposIncidentes[tipo] || 0) + 1;
+          vendedoresIncidentes[venta.ID_VENDEDOR] = (vendedoresIncidentes[venta.ID_VENDEDOR] || 0) + 1;
+  
+          this.incidentesLista.push({
+            ID_VENDEDOR: venta.ID_VENDEDOR,
+            tipo: tipo,
+            FECHA_VENTA: venta.FECHA_VENTA
+          });
         });
-
-        // 🔹 Encontrar el tipo de incidente más frecuente
+  
+        console.log("📌 Tipos de Incidentes (Categorías):", Object.keys(tiposIncidentes));
+        console.log("📌 Cantidad de cada Incidente:", Object.values(tiposIncidentes));
+  
         this.incidenteMasFrecuente = Object.keys(tiposIncidentes).reduce((a, b) =>
           tiposIncidentes[a] > tiposIncidentes[b] ? a : b, "N/A"
         );
-
-        console.log("Total de Incidentes:", this.totalIncidentes);
-        console.log("Incidente Más Frecuente:", this.incidenteMasFrecuente);
+  
+        this.actualizarTablaIncidentes();
+  
+        this.graficoPastel.series = Object.values(vendedoresIncidentes);
+        this.graficoPastel.labels = Object.keys(vendedoresIncidentes);
+  
+        // 🔹 Forzar actualización del gráfico de barras
+        this.graficoBarras = { 
+          ...this.graficoBarras, 
+          series: [{ name: "Incidentes", data: Object.values(tiposIncidentes) }],
+          xaxis: { categories: Object.keys(tiposIncidentes) }
+        };
       },
       error: (error) => console.error("Error al obtener incidentes:", error),
     });
   }
+  
+  
+
+  // 🔹 Paginación de incidentes
+  actualizarTablaIncidentes() {
+    const inicio = (this.paginaActualIncidentes - 1) * this.incidentesPorPagina;
+    const fin = inicio + this.incidentesPorPagina;
+    this.incidentesPagina = this.incidentesLista.slice(inicio, fin);
+  }
+
+  paginaAnteriorIncidentes() {
+    if (this.paginaActualIncidentes > 1) {
+      this.paginaActualIncidentes--;
+      this.actualizarTablaIncidentes();
+    }
+  }
+
+  paginaSiguienteIncidentes() {
+    if (this.paginaActualIncidentes < this.getTotalPaginasIncidentes()) {
+      this.paginaActualIncidentes++;
+      this.actualizarTablaIncidentes();
+    }
+  }
+
+  getTotalPaginasIncidentes(): number {
+    return Math.ceil(this.incidentesLista.length / this.incidentesPorPagina);
+  }
+
+  // 🔹 Convertir fecha y hora desde Firebase Timestamp
+  convertirFechaHora(segundos: number): string {
+    const fecha = new Date(segundos * 1000);
+    return fecha.toLocaleString("es-MX", { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+  }
+
 
   actualizarTabla() {
     const inicio = (this.paginaActual - 1) * this.registrosPorPagina;

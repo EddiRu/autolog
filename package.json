@@ -37,6 +37,7 @@
     "file-saver": "^2.0.5",
     "ionicons": "^7.0.0",
     "leaflet": "^1.9.4",
+    "leaflet.markercluster": "^1.5.3",
     "ng-apexcharts": "^1.15.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
