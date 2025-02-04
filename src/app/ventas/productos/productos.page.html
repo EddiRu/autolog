@@ -1,5 +1,65 @@
 <app-menu titulo="cilindros"></app-menu>
 
 <ion-content id="main-content" [fullscreen]="true">
-  
+    <h3 style="margin: 1% 2% 0% 2%">
+        <b>Administración</b> || <span style="font-size:medium;"><ion-icon size="medium" name="cart-outline"></ion-icon>
+            Productos</span>
+    </h3>
+
+
+    <div style="width: 98%; margin: 1%;">
+        <ion-searchbar style="--border-radius: 8px; transform: scale(1.2);  width: 83%; margin: 0 auto;"
+            placeholder="ID ó nombre del distribuidor" [debounce]="50" showCancelButton="focus"></ion-searchbar>
+    </div>
+
+
+    <ion-grid>
+        <ion-row>
+            <ion-col size="12" size-sm="6">
+                <h5 style="text-align: center;"><b>
+                    Lista de distribuidres
+                </b></h5>
+                <ion-card>
+                    <ion-card-content>
+                        <!-- Aquí va la tabla -->
+                        <div class="table-container">
+                            <table class="responsive-table">
+                                <thead>
+                                    <tr>
+                                        <th>Identificador</th>
+                                        <th>Nombre</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let distribuidor of distribuidoresPaginados" (click)="seleccionarDistribuidor(distribuidor)" class="selectable-row">
+                                        <td>{{ distribuidor.identificador }}</td>
+                                        <td>{{ distribuidor.nombre }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        
+                    </ion-card-content>
+                </ion-card>
+                <!-- Paginación -->
+                <div class="pagination">
+                    <ion-button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</ion-button>
+                    <span>Página {{ paginaActual }} de {{ getTotalPaginas() }}</span>
+                    <ion-button (click)="paginaSiguiente()"
+                        [disabled]="paginaActual === getTotalPaginas()">Siguiente</ion-button>
+                </div>
+            </ion-col>
+            <ion-col size="12" size-sm="6">
+                <h5 style="text-align: center;"><b>
+                    Asinganación de productos
+                </b></h5>
+                <ion-card class="productos">
+                    <ion-card-content style="text-align: center;">
+                        Selecciona un distribuidor para asingar sus productos
+                    </ion-card-content>
+                </ion-card>
+            </ion-col>
+        </ion-row>
+    </ion-grid>
 </ion-content>
