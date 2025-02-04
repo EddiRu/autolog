@@ -9,14 +9,8 @@ import {
 } from '@angular/fire/firestore';
 import {
   deleteDoc,
-  addDoc,
-  query,
-  where,
-  getDocs
+  addDoc
 } from 'firebase/firestore';
-import {
-  Auth
-} from '@angular/fire/auth';
 import { Observable } from 'rxjs';
 
 
@@ -51,9 +45,8 @@ export class DistribuidoresService {
   updateDistribuidor(reporte: any): Promise<any> {
     const registroRef = doc(this.firestore, `distribuidores/${reporte.id}`);
     return updateDoc(registroRef, {
-      articulo: reporte.articulo,
-      precio: reporte.precio,
-      desc: reporte.desc,
+      identificador: reporte.identificador,
+      nombre: reporte.nombre
     });
   }
 }

@@ -336,6 +336,11 @@ export class HistorialPage implements OnInit {
     };
   }
 
+  async actualizarDatos(){
+    this.generarGraficoActividadVentas()
+    this.generarGraficoActividadIncidentes()
+  }
+
   generarGraficoActividadVentas() {
     if (this.ventasFiltradas.length === 0) return;
     const ventasPorMes = Array(12).fill(0);

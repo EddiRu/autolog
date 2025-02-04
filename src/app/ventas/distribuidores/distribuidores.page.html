@@ -8,9 +8,51 @@
   <h5 style="text-align: center;">Busqueda por ID ó nombre del distribuidor</h5>
   <div style="width: 98%; margin: 1%;">
     <ion-searchbar style="--border-radius: 8px; transform: scale(1.2);  width: 83%; margin: 0 auto;"
-      placeholder="ID ó nombre del distribuidor" [debounce]="250" showCancelButton="focus"></ion-searchbar>
+      placeholder="ID ó nombre del distribuidor" 
+      [debounce]="50" 
+      showCancelButton="focus"
+      [(ngModel)]="busqueda"
+      (ionInput)="filtrarDistribuidores()"
+      ></ion-searchbar>
   </div>
   <div>
+    <ion-card>
+      <ion-card-content>
+        <!-- Aquí va la tabla -->
+        <div class="table-container">
+          <table class="responsive-table">
+            <thead>
+              <tr>
+                <th>Identificador</th>
+                <th>Nombre</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let distribuidor of distribuidoresPaginados">
+                <td>{{ distribuidor.identificador }}</td>
+                <td>{{ distribuidor.nombre }}</td>
+                <td style="text-align: center;">
+                  <ion-button fill="clear" color="primary" (click)="editarDistribuidor(distribuidor)">
+                    <ion-icon name="create-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                  <ion-button fill="clear" color="danger" (click)="eliminarDistribuidor(distribuidor.id)">
+                    <ion-icon name="trash-outline" slot="icon-only"></ion-icon>
+                  </ion-button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Paginación -->
+        <div class="pagination">
+          <ion-button (click)="paginaAnterior()" [disabled]="paginaActual === 1">Anterior</ion-button>
+          <span>Página {{ paginaActual }} de {{ getTotalPaginas() }}</span>
+          <ion-button (click)="paginaSiguiente()" [disabled]="paginaActual === getTotalPaginas()">Siguiente</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
 
   </div>
 

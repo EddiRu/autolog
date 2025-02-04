@@ -73,7 +73,8 @@
       [debounce]="250"
       showCancelButton="focus"
       [(ngModel)]="busquedaProveedor"
-      (ionInput)="filtrarPorProveedor()">
+      (ionInput)="filtrarPorProveedor()"
+      (ionChange)="actualizarDatos()">
     </ion-searchbar>
   </div>
   

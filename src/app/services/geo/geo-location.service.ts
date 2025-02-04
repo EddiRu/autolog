@@ -45,7 +45,7 @@ export class GeoLocationService {
     const url = `https://us1.locationiq.com/v1/search.php?key=${this.apiKey}&q=${encodeURIComponent(direccionCompleta)}&countrycodes=MX&format=json`;
 
     // 🔹 Esperar 1 segundo antes de hacer la petición para evitar bloqueo
-    await new Promise(resolve => setTimeout(resolve, 300));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     return this.http.get(url).toPromise()
       .then((data: any) => {
