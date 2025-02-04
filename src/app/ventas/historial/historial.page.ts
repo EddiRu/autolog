@@ -247,6 +247,7 @@ export class HistorialPage implements OnInit {
   getTotalPaginasIncidentes(): number {
     return Math.ceil(this.incidentesFiltrados.length / this.incidentesPorPagina);
   }
+  // Hoa
 
   getTotalPaginasVentas(): number {
     return Math.ceil(this.ventasFiltradas.length / this.ventasPorPagina);
